@@ -11,19 +11,16 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel: ViewModel() {
 
-
     private val tag = "LoginViewModel"
 
     val repository = Repository()
     val isLoading = MutableLiveData<Boolean>()
     val loginResponse = MutableLiveData<LoginResponse?>()
 
-
     fun login(userName: String, password: String){
         if (BuildConfig.DEBUG) {
             Log.d(tag, "login()")
         }
-
         viewModelScope.launch {
             isLoading.postValue(true)
             val response = repository.login(userName, password)
@@ -31,6 +28,5 @@ class LoginViewModel: ViewModel() {
             isLoading.postValue(false)
         }
     }
-
 
 }

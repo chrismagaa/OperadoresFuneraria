@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.ui.home.ui.gallery
+package com.pabs.operadores_funeraria.ui.main.ui.gallery
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
