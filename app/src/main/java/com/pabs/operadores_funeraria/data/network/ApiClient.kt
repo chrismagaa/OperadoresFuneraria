@@ -1,0 +1,29 @@
+package com.pabs.operadores_funeraria.data.network
+
+import android.util.Log
+import com.pabs.operadores_funeraria.BuildConfig
+import com.pabs.operadores_funeraria.core.RetrofitHelper
+import com.pabs.operadores_funeraria.data.network.model.LoginResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+class ApiClient {
+
+    private val tag = "ApiClient"
+    private val retrofit = RetrofitHelper.getRetrofit()
+
+    suspend fun login(
+        userName: String,
+        password: String
+    ): LoginResponse? {
+        if(BuildConfig.DEBUG){
+            Log.d(tag, "login()")
+        }
+        return withContext(Dispatchers.IO){
+            val response = retrofit.create(ApiService::class.java).login(userName, password)
+            response.body()
+        }
+    }
+
+
+}
