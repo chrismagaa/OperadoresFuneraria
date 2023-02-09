@@ -34,6 +34,28 @@ class MainViewModel : ViewModel() {
 
 
 
+    var webSocketService: EchoService? = null
+
+
+    fun setupWebSocketService(lifecycleActivity: Lifecycle, urlSocket: String) {
+        webSocketService = provideWebSocketService(
+            scarlet = ScarletHelper.provideScarlet(
+                socketUrl = urlSocket,
+                client = ScarletHelper.provideOkhttp(),
+                lifecycle = lifecycleActivity,
+                streamAdapterFactory = provideStreamAdapterFactory(),
+            )
+        )
+    }
+
+    private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
+    private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
+
+
+
+
+
+
 
 
 

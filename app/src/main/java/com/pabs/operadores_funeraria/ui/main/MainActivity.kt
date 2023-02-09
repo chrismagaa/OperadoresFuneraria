@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvAuto).text = "Placas Carroza: "+it.autoPlaca
             }
         }
-        setupWebSocketService(provideLifeCycle(), "wss://socketsbay.com/wss/v2/1/demo/")
+        vmMain.setupWebSocketService(provideLifeCycle(), "wss://socketsbay.com/wss/v2/1/demo/")
         observeConnection()
 
     }
@@ -81,34 +81,16 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-
-    var webSocketService: EchoService? = null
-
-    fun setupWebSocketService(lifecycleActivity: Lifecycle, urlSocket: String) {
-        webSocketService = provideWebSocketService(
-            scarlet = ScarletHelper.provideScarlet(
-                socketUrl = urlSocket,
-                client = ScarletHelper.provideOkhttp(),
-                lifecycle = lifecycleActivity,
-                streamAdapterFactory = provideStreamAdapterFactory(),
-            )
-        )
-    }
-
-    private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
-
-    private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
-
-    private fun provideLifeCycle() = AndroidLifecycle.ofApplicationForeground(application = application)
+    private fun provideLifeCycle() = AndroidLifecycle.ofLifecycleOwnerForeground(application, this)
 
 
     private fun sendMessage(message: String) {
-        webSocketService?.sendMessage(message)
+        vmMain.webSocketService?.sendMessage(message)
     }
 
     @SuppressLint("CheckResult")
     private fun observeConnection() {
-        webSocketService?.observeConnection()
+        vmMain.webSocketService?.observeConnection()
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribe({ response ->
                 Log.d("observeConnection", response.toString())
