@@ -10,6 +10,7 @@ import com.pabs.operadores_funeraria.utils.Session
 import com.tinder.scarlet.Lifecycle
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
+import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 
 class MainViewModel : ViewModel() {
@@ -44,11 +45,14 @@ class MainViewModel : ViewModel() {
                 client = ScarletHelper.provideOkhttp(),
                 lifecycle = lifecycleActivity,
                 streamAdapterFactory = provideStreamAdapterFactory(),
+                backoffStrategy = backoffStrategy
             )
         )
     }
 
-    private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
+    val backoffStrategy = ExponentialWithJitterBackoffStrategy(5000, 5000)
+
+        private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
     private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
 
 

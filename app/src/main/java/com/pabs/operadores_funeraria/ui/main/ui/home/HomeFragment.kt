@@ -1,5 +1,9 @@
 package com.pabs.operadores_funeraria.ui.main.ui.home
 
+ import android.Manifest
+ import android.annotation.SuppressLint
+ import android.app.Activity
+ import android.content.Intent
  import android.content.pm.PackageManager
  import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +12,7 @@ import android.view.ViewGroup
  import android.widget.Button
  import android.widget.Toast
  import androidx.constraintlayout.widget.ConstraintLayout
+ import androidx.core.app.ActivityCompat
  import androidx.fragment.app.Fragment
  import com.google.android.gms.maps.GoogleMap
  import com.google.android.gms.maps.OnMapReadyCallback
@@ -15,11 +20,17 @@ import android.view.ViewGroup
  import com.google.android.material.bottomsheet.BottomSheetBehavior
  import com.pabs.operadores_funeraria.R
  import com.pabs.operadores_funeraria.databinding.FragmentHomeBinding
- import com.pabs.operadores_funeraria.utils.LocationHelper
- import com.pabs.operadores_funeraria.utils.LocationHelper.REQUEST_CODE_LOCATION
+ import com.pabs.operadores_funeraria.utils.LocationService
+ import com.pabs.operadores_funeraria.utils.isPermissionsGranted
 
 
 class HomeFragment : Fragment(), OnMapReadyCallback {
+
+    companion object{
+        const val REQUEST_CODE_LOCATION = 102
+        const val TAG = "HomeFragment"
+    }
+
 
 
     private var _binding: FragmentHomeBinding? = null
@@ -72,15 +83,21 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     }
 
 
+    @SuppressLint("MissingPermission")
     private fun enableMyLocation(){
         if(!::mMap.isInitialized) return
-        if(LocationHelper.isPermissionsGranted(requireContext())){
+        if(requireContext().isPermissionsGranted()){
             mMap.isMyLocationEnabled = true
+            Intent(requireContext(), LocationService::class.java).apply {
+                action = LocationService.ACTION_START
+                requireContext().startService(this)
+            }
         }else{
-            LocationHelper.requestLocationPermission(requireActivity())
+            requestLocationPermission(requireActivity())
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -96,12 +113,26 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
         if (!::mMap.isInitialized) return
-        if(!LocationHelper.isPermissionsGranted(requireContext())){
+        if(!requireContext().isPermissionsGranted()){
             mMap.isMyLocationEnabled = false
             Toast.makeText(requireContext(), "Para activar la localización ve a ajustes y acepta los permisos", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+
+    fun requestLocationPermission(activity: Activity) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Toast.makeText(activity, "Ve a ajustes y acepta los permisos", Toast.LENGTH_SHORT).show()
+        } else {
+            ActivityCompat.requestPermissions(activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_CODE_LOCATION)
         }
     }
 
