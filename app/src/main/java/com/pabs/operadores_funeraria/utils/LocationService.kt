@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
 import com.pabs.operadores_funeraria.R
+import com.pabs.operadores_funeraria.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,6 +29,7 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
         locationClient = DefaultLocationClient(
             applicationContext,
             LocationServices.getFusedLocationProviderClient(applicationContext)
@@ -54,8 +56,8 @@ class LocationService : Service() {
 
     private fun start() {
         val notification = NotificationCompat.Builder(this, "location")
-            .setContentTitle("Traking location...")
-            .setContentText("Location: null")
+            .setContentTitle("Seguiemiento de ubicación...")
+            .setContentText("Localización: null")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setOngoing(true)
 
@@ -67,14 +69,23 @@ class LocationService : Service() {
             }.onEach { location ->
                 val lat = location.latitude.toString()
                 val long = location.longitude.toString()
+                sendDataToMain(lat, long)
+
                 val updateNotification = notification.setContentText(
-                    "Location: ($lat, $long)"
+                    "Localización: ($lat, $long)"
                 )
                 notificationManager.notify(1, updateNotification.build())
+
             }.launchIn(serviceScope)
 
 
         startForeground(1, notification.build())
+    }
+
+    private fun sendDataToMain(lat: String, long: String) {
+        val intent = Intent("changeLocationReciver").putExtra(MainActivity.EXTRA_LATITUDE, lat).putExtra(
+            MainActivity.EXTRA_LONGITUDE, long)
+        sendBroadcast(intent)
     }
 
     override fun onDestroy() {

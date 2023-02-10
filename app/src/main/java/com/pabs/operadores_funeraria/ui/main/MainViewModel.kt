@@ -10,6 +10,7 @@ import com.pabs.operadores_funeraria.utils.Session
 import com.tinder.scarlet.Lifecycle
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
+import com.tinder.scarlet.messageadapter.gson.GsonMessageAdapter
 import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 
@@ -17,6 +18,8 @@ class MainViewModel : ViewModel() {
 
 
     val user = MutableLiveData<User>()
+
+    val permissionEnabledLocation = MutableLiveData<Boolean>()
 
     init {
         user.postValue(Session.instance.user)
@@ -31,10 +34,6 @@ class MainViewModel : ViewModel() {
         this.user.postValue(user)
     }
 
-
-
-
-
     var webSocketService: EchoService? = null
 
 
@@ -43,16 +42,13 @@ class MainViewModel : ViewModel() {
             scarlet = ScarletHelper.provideScarlet(
                 socketUrl = urlSocket,
                 client = ScarletHelper.provideOkhttp(),
-                lifecycle = lifecycleActivity,
                 streamAdapterFactory = provideStreamAdapterFactory(),
-                backoffStrategy = backoffStrategy
             )
         )
     }
 
-    val backoffStrategy = ExponentialWithJitterBackoffStrategy(5000, 5000)
-
-        private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
+    val messageAdapter = GsonMessageAdapter.Factory()
+    private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
     private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
 
 

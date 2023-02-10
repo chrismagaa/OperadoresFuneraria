@@ -14,12 +14,14 @@ import android.view.ViewGroup
  import androidx.constraintlayout.widget.ConstraintLayout
  import androidx.core.app.ActivityCompat
  import androidx.fragment.app.Fragment
+ import androidx.fragment.app.activityViewModels
  import com.google.android.gms.maps.GoogleMap
  import com.google.android.gms.maps.OnMapReadyCallback
  import com.google.android.gms.maps.SupportMapFragment
  import com.google.android.material.bottomsheet.BottomSheetBehavior
  import com.pabs.operadores_funeraria.R
  import com.pabs.operadores_funeraria.databinding.FragmentHomeBinding
+ import com.pabs.operadores_funeraria.ui.main.MainViewModel
  import com.pabs.operadores_funeraria.utils.LocationService
  import com.pabs.operadores_funeraria.utils.isPermissionsGranted
 
@@ -31,12 +33,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         const val TAG = "HomeFragment"
     }
 
-
-
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     lateinit var bsb: BottomSheetBehavior<ConstraintLayout>
+
+    private val vmMain: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,8 +50,17 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         createFragmentMap()
         setupBottomSheet()
 
+        vmMain.permissionEnabledLocation.observe(viewLifecycleOwner) {
+            if (it) {
+                //  requestLocationPermission(requireActivity())
+                enableMyLocation()
+            }
+        }
+
         return binding.root
     }
+
+
 
     private fun setupBottomSheet() {
         binding.root.findViewById<ConstraintLayout>(R.id.bottomSheet)
@@ -70,8 +81,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     }
 
 
-
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         enableMyLocation()
@@ -88,15 +97,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         if(!::mMap.isInitialized) return
         if(requireContext().isPermissionsGranted()){
             mMap.isMyLocationEnabled = true
-            Intent(requireContext(), LocationService::class.java).apply {
-                action = LocationService.ACTION_START
-                requireContext().startService(this)
-            }
         }else{
-            requestLocationPermission(requireActivity())
+          //  requestLocationPermission(requireActivity())
         }
     }
 
+/*
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -113,7 +119,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    @SuppressLint("MissingPermission")
+
+ */
+/*    @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
         if (!::mMap.isInitialized) return
@@ -123,7 +131,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+ */
 
+/*
 
     fun requestLocationPermission(activity: Activity) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
@@ -135,6 +145,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 REQUEST_CODE_LOCATION)
         }
     }
+
+ */
+
+
 
 
 

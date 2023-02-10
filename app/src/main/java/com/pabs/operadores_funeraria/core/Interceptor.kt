@@ -18,7 +18,6 @@ class Interceptor(): Interceptor {
             val original = chain.request()
             val request = original.newBuilder()
                 .header("Authorization", "dsad")
-
                 .build()
 
             if(BuildConfig.DEBUG) {
@@ -45,8 +44,7 @@ class Interceptor(): Interceptor {
 
     class NoInternetException() : IOException() {
         override val message: String
-            get() =
-                "Internet no disponible, verifica tu conexión a internet"
+            get() = "Internet no disponible, verifica tu conexión a internet"
     }
 
 }

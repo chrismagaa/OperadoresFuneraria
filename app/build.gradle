@@ -68,6 +68,7 @@ dependencies {
     implementation 'com.tinder.scarlet:lifecycle-android:0.1.12'
     implementation 'com.tinder.scarlet:websocket-okhttp:0.1.12'
     implementation 'com.tinder.scarlet:stream-adapter-rxjava2:0.1.12'
+    implementation 'com.tinder.scarlet:message-adapter-gson:0.1.12'
 
     // rx
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
@@ -83,4 +84,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
+    //Gson
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
