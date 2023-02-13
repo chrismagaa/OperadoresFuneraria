@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.utils.location
 
 import android.location.Location
 import kotlinx.coroutines.flow.Flow

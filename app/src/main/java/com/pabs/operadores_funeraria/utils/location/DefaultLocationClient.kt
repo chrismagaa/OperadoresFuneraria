@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.utils.location
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,6 +9,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.pabs.operadores_funeraria.utils.isPermissionsGranted
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -28,8 +29,7 @@ class DefaultLocationClient(
             val locationManager =
                 context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isNetworkEnabled =
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
             if (!isGpsEnabled && !isNetworkEnabled) {
                 throw LocationClient.LocationException("GPS is disabled")

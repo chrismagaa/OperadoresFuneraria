@@ -7,20 +7,52 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
-    <TextView
-        android:id="@+id/tv_status"
+
+    <LinearLayout
+        android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:alpha="1"
         android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:padding="2dp"
-        android:fontFamily="bold"
-        android:text="CONECTANDO..."
-        android:background="#D1D1D1"/>
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <TextView
+            android:id="@+id/tv_status_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="1dp"
+            android:background="#D1D1D1"
+            android:fontFamily="bold"
+            android:gravity="center"
+            android:padding="2dp"
+            android:text="CONECTANDO..."
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+
+        <TextView
+            android:id="@+id/tv_status_gps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#D1D1D1"
+            android:layout_marginStart="1dp"
+            android:fontFamily="bold"
+            android:gravity="center"
+            android:padding="2dp"
+            android:text="GPS..."
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+
+
 
     <fragment
         android:id="@+id/nav_host_fragment_content_main"
@@ -30,6 +62,6 @@
         app:defaultNavHost="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_status"
+        app:layout_constraintTop_toBottomOf="@id/status"
         app:navGraph="@navigation/mobile_navigation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

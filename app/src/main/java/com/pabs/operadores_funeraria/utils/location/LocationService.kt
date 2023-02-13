@@ -1,10 +1,9 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.utils.location
 
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.media.session.PlaybackState.ACTION_STOP
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
@@ -66,6 +65,7 @@ class LocationService : Service() {
         locationClient.getLocationUpdates(3000L)
             .catch { e ->
                 e.printStackTrace()
+
             }.onEach { location ->
                 val lat = location.latitude.toString()
                 val long = location.longitude.toString()

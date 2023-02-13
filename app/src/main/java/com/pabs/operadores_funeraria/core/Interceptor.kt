@@ -2,6 +2,7 @@ package com.pabs.operadores_funeraria.core
 
 import android.util.Log
 import com.pabs.operadores_funeraria.BuildConfig
+import com.pabs.operadores_funeraria.utils.Session
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
@@ -17,7 +18,7 @@ class Interceptor(): Interceptor {
         }else{
             val original = chain.request()
             val request = original.newBuilder()
-                .header("Authorization", "dsad")
+                .header("Authorization", "Bearer ${Session.instance.token}")
                 .build()
 
             if(BuildConfig.DEBUG) {

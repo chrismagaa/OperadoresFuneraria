@@ -37,17 +37,16 @@ class MainViewModel : ViewModel() {
     var webSocketService: EchoService? = null
 
 
-    fun setupWebSocketService(lifecycleActivity: Lifecycle, urlSocket: String) {
+    fun setupWebSocketService(urlSocket: String) {
         webSocketService = provideWebSocketService(
-            scarlet = ScarletHelper.provideScarlet(
+            ScarletHelper.provideScarlet(
                 socketUrl = urlSocket,
                 client = ScarletHelper.provideOkhttp(),
                 streamAdapterFactory = provideStreamAdapterFactory(),
             )
         )
     }
-
-    val messageAdapter = GsonMessageAdapter.Factory()
+    
     private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
     private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
 

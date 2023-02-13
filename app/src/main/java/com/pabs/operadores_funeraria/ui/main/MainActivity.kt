@@ -4,9 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -14,33 +16,30 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
+import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.R
-import com.pabs.operadores_funeraria.core.ScarletHelper
-import com.pabs.operadores_funeraria.data.network.EchoService
 import com.pabs.operadores_funeraria.data.network.model.MyLocationService
 import com.pabs.operadores_funeraria.databinding.ActivityMainBinding
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
-import com.pabs.operadores_funeraria.ui.main.ui.home.HomeFragment
-import com.pabs.operadores_funeraria.utils.LocationService
+import com.pabs.operadores_funeraria.utils.StatusWebConnection
+import com.pabs.operadores_funeraria.utils.location.LocationService
+import com.pabs.operadores_funeraria.utils.location.LocationStateChangeBroadcastReceiver
 import com.pabs.operadores_funeraria.utils.isPermissionsGranted
-import com.tinder.scarlet.Lifecycle
 import com.tinder.scarlet.Message
-import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
-import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
-import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,6 +50,10 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_LATITUDE = "EXTRA_LATITUDE"
         const val EXTRA_LONGITUDE = "EXTRA_LONGITUDE"
     }
+
+
+    var locationStateChangeBroadcastReceiver =
+        LocationStateChangeBroadcastReceiver()
 
     private val changeLocationBroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: android.content.Context?, intent: Intent?) {
@@ -65,6 +68,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val internalLocationChangeReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent) {
+            val stateGPS = intent.getStringExtra("Gps_state")
+            if (stateGPS == "Gps Disabled") {
+                changeStatusTitleGps("GPS Deshabilitado", R.color.red)
+                Toast.makeText(context, "GPS Habilitado", Toast.LENGTH_SHORT).show()
+            } else {
+                changeStatusTitleGps("GPS Habilitado", R.color.green)
+                Toast.makeText(context, "GPS Desabilidado", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -94,33 +109,74 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
 
-        vmMain.user.observe(this) {
+        vmMain.user.observe(   this) {
+            if(BuildConfig.DEBUG){
+                Toast.makeText(this, "URL: ${it.servicio.url}", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "URL: ${it.servicio.url}")
+            }
             if(it != null){
                 binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvUserName).text = it.username
                 binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvAuto).text = "Carroza: "+it.autoPlaca
+                //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
+                //Comenzamos la conexión con el websocket
+                        vmMain.setupWebSocketService(it.servicio.url!!)
+                        observeConnection()
             }
         }
 
-        //Comenzamos la conexión con el websocket
-        vmMain.setupWebSocketService(provideLifeCycle(), "wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")
-        observeConnection()
+        //checamos la localización
+        checkLocation()
 
         //Registramos el broadcast receiver de los cambios en la ubicación
-        registerReciver()
+        registerRecivers()
 
         //Comenzamos a obtener la ubicación en tiempo real
         if(this.isPermissionsGranted()){
             vmMain.permissionEnabledLocation.postValue(true)
-           initTracking()
+            initTracking()
         }else{
             vmMain.permissionEnabledLocation.postValue(false)
             requestLocationPermission(this)
         }
     }
 
-    private fun registerReciver() {
+    private fun checkLocation() {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            changeStatusTitleGps("GPS Deshabilitado", R.color.red)
+        } else {
+            changeStatusTitleGps("GPS Habilitado", R.color.green)
+        }
+    }
+
+    private fun changeStatusTitleGps(title: String, color: Int) {
+        findViewById<TextView>(R.id.tv_status_gps).apply {
+            text = title
+            setBackgroundColor(ContextCompat.getColor(this@MainActivity, color))
+        }
+    }
+
+
+    private fun registerRecivers() {
         val intentFilter = IntentFilter("changeLocationReciver")
         registerReceiver(changeLocationBroadcastReceiver, intentFilter)
+
+
+        //Broadcast para el cambio de estado de la conexión
+        try {
+            registerReceiver(
+                locationStateChangeBroadcastReceiver,
+                IntentFilter("android.location.PROVIDERS_CHANGED")
+            )
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(LocationStateChangeBroadcastReceiver.GPS_CHANGE_ACTION)
+            registerReceiver(internalLocationChangeReceiver, intentFilter)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+
+
     }
 
     fun requestLocationPermission(activity: Activity) {
@@ -167,8 +223,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-
         return when (item.itemId) {
             R.id.action_salir -> {
                 vmMain.logout(this){
@@ -177,6 +231,9 @@ class MainActivity : AppCompatActivity() {
                         action = LocationService.ACTION_START
                         stopService(this)
                     }
+
+                    unregisterReceiver(locationStateChangeBroadcastReceiver);
+                    unregisterReceiver(internalLocationChangeReceiver);
 
                     startActivity(Intent(this, LoginActivity::class.java))
                     finish()
@@ -194,9 +251,6 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-
-    private fun provideLifeCycle() = AndroidLifecycle.ofLifecycleOwnerForeground(application, this)
-
 
     fun sendLocation(message: String) {
         vmMain.webSocketService?.sendMessage(message)
@@ -218,10 +272,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun onReceiveResponseConnection(response: WebSocket.Event) {
         when (response) {
-            is WebSocket.Event.OnConnectionOpened<*> -> changeStatusTitle("CONECTADO", R.color.green)
-            is WebSocket.Event.OnConnectionClosed -> changeStatusTitle("CONCECCIÓN CERRADA", R.color.yellow)
-            is WebSocket.Event.OnConnectionClosing -> changeStatusTitle("CERRANDO CONECCIÓN...", R.color.yellow)
-            is WebSocket.Event.OnConnectionFailed -> changeStatusTitle("LA CONNECCIÓN FALLÓ", R.color.red)
+            is WebSocket.Event.OnConnectionOpened<*> -> changeStatusTitle(StatusWebConnection.OPENED)
+            is WebSocket.Event.OnConnectionClosed -> changeStatusTitle(StatusWebConnection.CLOSED)
+            is WebSocket.Event.OnConnectionClosing -> changeStatusTitle(StatusWebConnection.CLOSING)
+            is WebSocket.Event.OnConnectionFailed -> changeStatusTitle(StatusWebConnection.FAILED)
             is WebSocket.Event.OnMessageReceived -> handleOnMessageReceived(response.message)
         }
     }
@@ -239,18 +293,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeStatusTitle(title: String, color: Int) {
+    private fun changeStatusTitle(statusWeb: StatusWebConnection) {
         Toast.makeText(this, title, Toast.LENGTH_SHORT).show()
-           this.findViewById<TextView>(R.id.tv_status).apply {
-               text = title
-               setBackgroundColor(ContextCompat.getColor(context, color))
+           this.findViewById<TextView>(R.id.tv_status_service).apply {
+               text = statusWeb.description()
+               setBackgroundColor(ContextCompat.getColor(context, statusWeb.color()))
            }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Toast.makeText(this, "OnResume()", Toast.LENGTH_SHORT).show()
-    }
+
 
     override fun onBackPressed() {
     }
