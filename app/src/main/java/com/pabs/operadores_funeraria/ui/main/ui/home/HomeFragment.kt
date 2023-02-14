@@ -85,7 +85,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
                     mMap.addMarker(
                         MarkerOptions()
                             .position(latLng)
-                            .title("Destino")
+                            .title(it.servicio.destino_name)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.house))
                     )
                 }
@@ -105,6 +105,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
 
         bottomSheet.findViewById<Button>(R.id.btnMaps).setOnClickListener {
             startNavigation()
+        }
+
+        bottomSheet.findViewById<Button>(R.id.btnDestino).setOnClickListener {
+            vmMain.user.value?.let {
+                if (it.servicio.destino_lat != null && it.servicio.destino_lng != null) {
+                    val latLng = LatLng(it.servicio.destino_lat, it.servicio.destino_lng)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                }
+            }
         }
     }
 

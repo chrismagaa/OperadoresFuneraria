@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
     android:layout_height="140dp"
@@ -27,9 +28,24 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:text="Comenzar Ruta"
+        app:icon="@drawable/baseline_map_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnDestino"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnDestino"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="#018175"
+        android:text="Destino"
+        app:icon="@drawable/baseline_location_searching_24"
+        app:layout_constraintBottom_toBottomOf="@+id/btnMaps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnMaps"
+        app:layout_constraintTop_toTopOf="@+id/btnMaps" />
 </androidx.constraintlayout.widget.ConstraintLayout>

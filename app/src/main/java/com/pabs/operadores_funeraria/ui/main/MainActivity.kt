@@ -32,6 +32,8 @@ import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.data.network.model.MyLocationService
 import com.pabs.operadores_funeraria.databinding.ActivityMainBinding
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
+import com.pabs.operadores_funeraria.utils.MessageFactory
+import com.pabs.operadores_funeraria.utils.MessageType
 import com.pabs.operadores_funeraria.utils.StatusWebConnection
 import com.pabs.operadores_funeraria.utils.location.LocationService
 import com.pabs.operadores_funeraria.utils.location.LocationStateChangeBroadcastReceiver
@@ -225,26 +227,31 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_salir -> {
-                vmMain.logout(this){
-                    unregisterReceiver(changeLocationBroadcastReceiver)
-                    Intent(this, LocationService::class.java).apply {
-                        action = LocationService.ACTION_START
-                        stopService(this)
-                    }
-
-                    unregisterReceiver(locationStateChangeBroadcastReceiver);
-                    unregisterReceiver(internalLocationChangeReceiver);
-
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                }
-
+                showDialogSalir()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
 
+    }
+
+    private fun showDialogSalir() {
+        MessageFactory.getDialog(this, MessageType.ERROR, "¿Estas seguro que deseas salir?", "Si continuas se dará por terminado el servicio.", {
+            vmMain.logout(this){
+                unregisterReceiver(changeLocationBroadcastReceiver)
+                Intent(this, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+                    stopService(this)
+                }
+
+                unregisterReceiver(locationStateChangeBroadcastReceiver);
+                unregisterReceiver(internalLocationChangeReceiver);
+
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+                }, "CONTINUAR").show()
     }
 
     override fun onSupportNavigateUp(): Boolean {
