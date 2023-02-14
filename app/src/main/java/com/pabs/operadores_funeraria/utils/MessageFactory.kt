@@ -36,7 +36,7 @@ object MessageFactory {
                 return AlertDialog.Builder(context)
                     .setTitle(title)
                     .setMessage(message)
-                    .setPositiveButton(negativeText) { dialog, _ ->
+                    .setPositiveButton(positiveText) { dialog, _ ->
                         onClickPositiveButton()
                         dialog.dismiss()
                     }

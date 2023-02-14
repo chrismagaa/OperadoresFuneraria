@@ -5,10 +5,12 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -25,6 +27,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.databinding.FragmentServicioBinding
 import com.pabs.operadores_funeraria.ui.main.MainViewModel
+import com.pabs.operadores_funeraria.utils.MessageFactory
+import com.pabs.operadores_funeraria.utils.MessageType
 import com.pabs.operadores_funeraria.utils.isPermissionsGranted
 
 
@@ -104,6 +108,18 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
                 }
             }
         }
+
+        bottomSheet.findViewById<ImageView>(R.id.btnInfo).setOnClickListener{
+            showDialogInfo()
+        }
+    }
+
+    private fun showDialogInfo() {
+        val info = "Destino name: ${vmMain.servicio.value?.destino_name} \n " +
+                "Destino lat: ${vmMain.servicio.value?.destino_lat} \n " +
+                "Destino lng: ${vmMain.servicio.value?.destino_lng} \n " +
+                "URL: ${vmMain.servicio.value?.url} "
+        MessageFactory.getDialog(requireContext(), MessageType.INFO, "Información del servicio", info, {}, "OK").show()
     }
 
     private fun startNavigation() {
