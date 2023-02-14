@@ -5,7 +5,8 @@ import android.content.SharedPreferences
 
 enum class PreferencesKey(val value: String){
     USER("user"),
-    AUTH_TOKEN("auth_token")
+    AUTH_TOKEN("auth_token"),
+    SERVICIO("servicio")
 }
 
 object PreferencesProvider {

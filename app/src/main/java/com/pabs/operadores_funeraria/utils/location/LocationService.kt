@@ -1,11 +1,14 @@
 package com.pabs.operadores_funeraria.utils.location
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.ui.main.MainActivity
@@ -57,7 +60,8 @@ class LocationService : Service() {
         val notification = NotificationCompat.Builder(this, "location")
             .setContentTitle("Seguiemiento de ubicación...")
             .setContentText("Localización: null")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setColor(ContextCompat.getColor(this@LocationService, R.color.red))
+            .setSmallIcon(R.drawable.funebre)
             .setOngoing(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -65,6 +69,8 @@ class LocationService : Service() {
         locationClient.getLocationUpdates(3000L)
             .catch { e ->
                 e.printStackTrace()
+                val updateNotification = notification.setContentText("Localización: null").setColor(ContextCompat.getColor(this@LocationService, R.color.red))
+                notificationManager.notify(1, updateNotification.build())
 
             }.onEach { location ->
                 val lat = location.latitude.toString()
@@ -73,7 +79,8 @@ class LocationService : Service() {
 
                 val updateNotification = notification.setContentText(
                     "Localización: ($lat, $long)"
-                )
+                ).setColor(ContextCompat.getColor(this, R.color.green))
+
                 notificationManager.notify(1, updateNotification.build())
 
             }.launchIn(serviceScope)

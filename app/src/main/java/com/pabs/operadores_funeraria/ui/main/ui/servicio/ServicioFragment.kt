@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.ui.main.ui.home
+package com.pabs.operadores_funeraria.ui.main.ui.servicio
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -13,8 +13,6 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource.OnLocationChangedListener
@@ -25,28 +23,19 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.pabs.operadores_funeraria.R
-import com.pabs.operadores_funeraria.databinding.FragmentHomeBinding
+import com.pabs.operadores_funeraria.databinding.FragmentServicioBinding
 import com.pabs.operadores_funeraria.ui.main.MainViewModel
 import com.pabs.operadores_funeraria.utils.isPermissionsGranted
-import com.pabs.operadores_funeraria.utils.location.DefaultLocationClient
-import com.pabs.operadores_funeraria.utils.location.LocationClient
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 
-class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
+class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
 
     companion object {
         const val REQUEST_CODE_LOCATION = 102
-        const val TAG = "HomeFragment"
+        const val TAG = "ServicioFragment"
     }
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentServicioBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     lateinit var bsb: BottomSheetBehavior<ConstraintLayout>
@@ -58,7 +47,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentServicioBinding.inflate(inflater, container, false)
 
         createFragmentMap()
         setupBottomSheet()
@@ -78,14 +67,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
         }
 
         //pintar destino
-        vmMain.user.observe(viewLifecycleOwner) {
-            if (it != null) {
-                if (it.servicio.destino_lat != null && it.servicio.destino_lng != null) {
-                    val latLng = LatLng(it.servicio.destino_lat, it.servicio.destino_lng)
+        vmMain.servicio.observe(viewLifecycleOwner) {servicio ->
+            if (servicio != null) {
+                if (servicio.destino_lat != null && servicio.destino_lng != null) {
+                    val latLng = LatLng(servicio.destino_lat, servicio.destino_lng)
                     mMap.addMarker(
                         MarkerOptions()
                             .position(latLng)
-                            .title(it.servicio.destino_name)
+                            .title(servicio.destino_name)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.house))
                     )
                 }
@@ -108,9 +97,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
         }
 
         bottomSheet.findViewById<Button>(R.id.btnDestino).setOnClickListener {
-            vmMain.user.value?.let {
-                if (it.servicio.destino_lat != null && it.servicio.destino_lng != null) {
-                    val latLng = LatLng(it.servicio.destino_lat, it.servicio.destino_lng)
+            vmMain.servicio.value?.let {servicio ->
+                if (servicio.destino_lat != null && servicio.destino_lng != null) {
+                    val latLng = LatLng(servicio.destino_lat, servicio.destino_lng)
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
                 }
             }
@@ -118,12 +107,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
     }
 
     private fun startNavigation() {
-        vmMain.user.value?.let {
+        vmMain.servicio.value?.let {servicio ->
 
-            if (it.servicio.destino_lat != null && it.servicio.destino_lng != null) {
+            if (servicio.destino_lat != null && servicio.destino_lng != null) {
 
                 val gmmIntentUri =
-                    Uri.parse("google.navigation:q=${it.servicio.destino_lat},${it.servicio.destino_lng}")
+                    Uri.parse("google.navigation:q=${servicio.destino_lat},${servicio.destino_lng}")
                 val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                 mapIntent.setPackage("com.google.android.apps.maps")
                 //  try {
@@ -133,7 +122,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
                 // }
             }
         }
-
     }
 
 

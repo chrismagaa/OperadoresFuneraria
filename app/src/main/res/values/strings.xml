@@ -19,7 +19,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_salir">Salir</string>
 
-    <string name="menu_home">Home</string>
+    <string name="menu_servicio">Servicio</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="location_change_receiver">android.location.PROVIDERS_CHANGED</string>

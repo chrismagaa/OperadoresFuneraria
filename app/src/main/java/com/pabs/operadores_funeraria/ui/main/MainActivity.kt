@@ -3,13 +3,11 @@ package com.pabs.operadores_funeraria.ui.main
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.app.AlertDialog
+import android.content.*
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -45,7 +43,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 class MainActivity : AppCompatActivity() {
 
-    companion object{
+    companion object {
         const val REQUEST_CODE_LOCATION = 102
         const val TAG = "MainActivity"
 
@@ -54,15 +52,24 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private var dialogGPS: AlertDialog? = null
+
+    private lateinit var intentTracking: Intent
+
     var locationStateChangeBroadcastReceiver =
         LocationStateChangeBroadcastReceiver()
 
-    private val changeLocationBroadcastReceiver = object : BroadcastReceiver(){
+    private val changeLocationBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: android.content.Context?, intent: Intent?) {
             val latitude = intent?.getStringExtra(EXTRA_LATITUDE).toString().toDouble()
             val longitude = intent?.getStringExtra(EXTRA_LONGITUDE).toString().toDouble()
 
-            val message = MyLocationService("JAD-232", "Juan Perez",latitude, longitude)
+            val message = MyLocationService(
+                vmMain.user.value!!.autoPlaca,
+                vmMain.user.value!!.username,
+                latitude,
+                longitude
+            )
 
 
             Log.d(TAG, MyLocationService.toJson(message))
@@ -70,15 +77,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val internalLocationChangeReceiver = object : BroadcastReceiver(){
+    private val internalLocationChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val stateGPS = intent.getStringExtra("Gps_state")
             if (stateGPS == "Gps Disabled") {
-                changeStatusTitleGps("GPS Deshabilitado", R.color.red)
-                Toast.makeText(context, "GPS Habilitado", Toast.LENGTH_SHORT).show()
+                vmMain.gpsEnabled.postValue(false)
             } else {
-                changeStatusTitleGps("GPS Habilitado", R.color.green)
-                Toast.makeText(context, "GPS Desabilidado", Toast.LENGTH_SHORT).show()
+                vmMain.gpsEnabled.postValue(true)
             }
         }
     }
@@ -92,6 +97,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -104,50 +110,90 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_servicio, R.id.nav_gallery, R.id.nav_slideshow
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        vmMain.onCreate(this)
 
-        vmMain.user.observe(   this) {
-            if(BuildConfig.DEBUG){
-                Toast.makeText(this, "URL: ${it.servicio.url}", Toast.LENGTH_SHORT).show()
-                Log.d(TAG, "URL: ${it.servicio.url}")
-            }
-            if(it != null){
-                binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvUserName).text = it.username
-                binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvAuto).text = "Carroza: "+it.autoPlaca
-                //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
-                //Comenzamos la conexión con el websocket
-                        vmMain.setupWebSocketService(it.servicio.url!!)
-                        observeConnection()
-            }
-        }
 
-        //checamos la localización
-        checkLocation()
+
+        observerUser()
+
+        observerServicio()
+
+        observerGps()
+
 
         //Registramos el broadcast receiver de los cambios en la ubicación
         registerRecivers()
 
-        //Comenzamos a obtener la ubicación en tiempo real
-        if(this.isPermissionsGranted()){
-            vmMain.permissionEnabledLocation.postValue(true)
-            initTracking()
-        }else{
-            vmMain.permissionEnabledLocation.postValue(false)
-            requestLocationPermission(this)
+
+    }
+
+    private fun observerGps() {
+        //observamos gps habilitado
+        vmMain.gpsEnabled.observe(this) {
+            if (it) {
+                changeStatusTitleGps("GPS Habilitado", R.color.green)
+                //Comenzamos a obtener la ubicación en tiempo real
+                if (this.isPermissionsGranted()) {
+                    vmMain.permissionEnabledLocation.postValue(true)
+                    if (!this::intentTracking.isInitialized) {
+                        initTracking()
+                    }
+                } else {
+                    vmMain.permissionEnabledLocation.postValue(false)
+                    requestLocationPermission(this)
+                }
+            } else {
+                changeStatusTitleGps("GPS Deshabilitado", R.color.red)
+                mostrarDialogoGPSDeshabilitado()
+            }
+        }
+
+    }
+
+    private fun mostrarDialogoGPSDeshabilitado() {
+        if(dialogGPS == null || !dialogGPS!!.isShowing){
+            dialogGPS = MessageFactory.getDialog(
+                this,
+                MessageType.ERROR,
+                "GPS DESHABILITADO",
+                "Para usar esta aplicación es necesario habilitar tu ubicación",
+                {
+                    try {
+                        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                    } catch (e: ActivityNotFoundException) {
+                        startActivity(Intent(Settings.ACTION_SETTINGS))
+                    }
+                }).show()
         }
     }
 
-    private fun checkLocation() {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            changeStatusTitleGps("GPS Deshabilitado", R.color.red)
-        } else {
-            changeStatusTitleGps("GPS Habilitado", R.color.green)
+    private fun observerServicio() {
+        vmMain.servicio.observe(this) { servicio ->
+            if (BuildConfig.DEBUG) {
+                Toast.makeText(this, "URL: ${servicio.url}", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "URL: ${servicio.url}")
+            }
+            //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
+            //Comenzamos la conexión con el websocket
+            vmMain.setupWebSocketService(servicio.url!!)
+            observeConnection()
+        }
+    }
+
+    private fun observerUser() {
+        vmMain.user.observe(this) {
+            if (it != null) {
+                binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvUserName).text =
+                    it.username
+                binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvAuto).text =
+                    "Carroza: " + it.autoPlaca
+            }
         }
     }
 
@@ -160,9 +206,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun registerRecivers() {
-        val intentFilter = IntentFilter("changeLocationReciver")
-        registerReceiver(changeLocationBroadcastReceiver, intentFilter)
-
 
         //Broadcast para el cambio de estado de la conexión
         try {
@@ -177,16 +220,21 @@ class MainActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
 
-
-
+        val intentFilter = IntentFilter("changeLocationReciver")
+        registerReceiver(changeLocationBroadcastReceiver, intentFilter)
     }
 
     fun requestLocationPermission(activity: Activity) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            Toast.makeText(activity, "Ve a ajustes y acepta los permisos", Toast.LENGTH_SHORT).show()
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                activity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        ) {
+            Toast.makeText(activity, "Ve a ajustes y acepta los permisos", Toast.LENGTH_SHORT)
+                .show()
         } else {
-            ActivityCompat.requestPermissions(activity,
+            ActivityCompat.requestPermissions(
+                activity,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_CODE_LOCATION
             )
@@ -194,7 +242,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initTracking() {
-        Intent(this, LocationService::class.java).apply {
+        intentTracking = Intent(this, LocationService::class.java).apply {
             action = LocationService.ACTION_START
             startService(this)
         }
@@ -207,12 +255,16 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            REQUEST_CODE_LOCATION -> if(grantResults.isNotEmpty() && grantResults[0]== PackageManager.PERMISSION_GRANTED){
+        when (requestCode) {
+            REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initTracking()
                 vmMain.permissionEnabledLocation.postValue(true)
-            }else{
-                Toast.makeText(this, "Para activar la localización ve a ajustes y acepta los permisos", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Para activar la localización ve a ajustes y acepta los permisos",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             else -> {}
         }
@@ -237,21 +289,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showDialogSalir() {
-        MessageFactory.getDialog(this, MessageType.ERROR, "¿Estas seguro que deseas salir?", "Si continuas se dará por terminado el servicio.", {
-            vmMain.logout(this){
-                unregisterReceiver(changeLocationBroadcastReceiver)
-                Intent(this, LocationService::class.java).apply {
-                    action = LocationService.ACTION_START
-                    stopService(this)
+        MessageFactory.getDialog(
+            this,
+            MessageType.ERROR,
+            "¿Estas seguro que deseas salir?",
+            "Si continuas se dará por terminado el servicio.",
+            {
+                vmMain.logout(this) {
+                    unregisterReceiver(changeLocationBroadcastReceiver)
+                    Intent(this, LocationService::class.java).apply {
+                        action = LocationService.ACTION_START
+                        stopService(this)
+                    }
+
+                    unregisterReceiver(locationStateChangeBroadcastReceiver);
+                    unregisterReceiver(internalLocationChangeReceiver);
+
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 }
-
-                unregisterReceiver(locationStateChangeBroadcastReceiver);
-                unregisterReceiver(internalLocationChangeReceiver);
-
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-                }, "CONTINUAR").show()
+            },
+            "CONTINUAR"
+        ).show()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -290,7 +349,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun handleOnMessageReceived(message: Message) {
         //   binding.textHome.text = message.toValue()
-       // Toast.makeText(this, message.toValue(), Toast.LENGTH_SHORT).show()
+        // Toast.makeText(this, message.toValue(), Toast.LENGTH_SHORT).show()
     }
 
     private fun Message.toValue(): String {
@@ -302,19 +361,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun changeStatusTitle(statusWeb: StatusWebConnection) {
         Toast.makeText(this, title, Toast.LENGTH_SHORT).show()
-           this.findViewById<TextView>(R.id.tv_status_service).apply {
-               text = statusWeb.description()
-               setBackgroundColor(ContextCompat.getColor(context, statusWeb.color()))
-           }
+        this.findViewById<TextView>(R.id.tv_status_service).apply {
+            text = statusWeb.description()
+            setBackgroundColor(ContextCompat.getColor(context, statusWeb.color()))
+        }
     }
-
 
 
     override fun onBackPressed() {
     }
-
-
-
 
 
 }

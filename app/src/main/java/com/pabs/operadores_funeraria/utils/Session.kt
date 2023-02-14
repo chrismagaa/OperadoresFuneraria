@@ -2,6 +2,7 @@ package com.pabs.operadores_funeraria.utils
 
 import android.content.Context
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
+import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
 import com.pabs.operadores_funeraria.data.persistence.PreferencesKey
 import com.pabs.operadores_funeraria.data.persistence.PreferencesProvider
@@ -14,6 +15,7 @@ class Session {
 
     var token: String? = null
     var user: User? = null
+    var servicio: ServicioFuneral? = null
 
     fun getAuthToken(): String{
         return "Bearer ${token?: ""}"
@@ -28,11 +30,25 @@ class Session {
             user = User.fromJson(it)
         }
 
+        PreferencesProvider.string(context, PreferencesKey.SERVICIO)?.let {
+            servicio = ServicioFuneral.fromJson(it)
+        }
+
     }
 
     fun update(context: Context, loginResponse: LoginResponse){
-        saveUser(context, loginResponse.user!!)
+        saveUser(context, loginResponse.user)
         saveAuthToken(context, loginResponse.auth_token!!)
+        saveServicio(context, loginResponse.servicio)
+    }
+
+    private fun saveServicio(context: Context, servicio: ServicioFuneral) {
+        PreferencesProvider.set(context, PreferencesKey.SERVICIO, ServicioFuneral.toJson(servicio))
+        this.servicio = servicio
+    }
+
+    fun updateServicio(context: Context, servicio: ServicioFuneral){
+        saveServicio(context, servicio)
     }
 
     fun updateUser(context: Context, user: User){
@@ -54,6 +70,7 @@ class Session {
         PreferencesProvider.clear(context)
         token = null
         user = null
+        servicio = null
         onLogOut()
     }
 

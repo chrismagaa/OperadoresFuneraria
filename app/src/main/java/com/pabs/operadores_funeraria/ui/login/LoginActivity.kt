@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.viewbinding.BuildConfig
-import com.pabs.operadores_funeraria.data.network.model.LoginResponse
 import com.pabs.operadores_funeraria.databinding.ActivityLoginBinding
 import com.pabs.operadores_funeraria.ui.main.MainActivity
 import com.pabs.operadores_funeraria.utils.Session

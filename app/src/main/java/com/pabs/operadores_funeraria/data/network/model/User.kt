@@ -7,8 +7,7 @@ class User(
     val id: Int,
     val username: String,
     val role: String,
-    val autoPlaca: String,
-    val servicio: ServicioFuneral
+    val autoPlaca: String
 ) {
     companion object{
         fun toJson(user: User): String{
