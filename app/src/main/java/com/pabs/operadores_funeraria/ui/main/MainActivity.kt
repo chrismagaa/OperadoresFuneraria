@@ -17,9 +17,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -120,6 +120,16 @@ class MainActivity : AppCompatActivity() {
 
         vmMain.onCreate(this)
 
+        navView.menu.findItem(R.id.nav_info).setOnMenuItemClickListener   {
+            drawerLayout.closeDrawer(GravityCompat.START)
+            MessageFactory.getDialogInfo(this).show()
+            true
+        }
+
+
+
+
+
 
 
         observerUser()
@@ -134,6 +144,12 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+
+
+
+
+
 
     private fun observerGps() {
         //observamos gps habilitado
@@ -408,6 +424,7 @@ class MainActivity : AppCompatActivity() {
         unregisterReceiver(locationStateChangeBroadcastReceiver);
         unregisterReceiver(internalLocationChangeReceiver);
     }
+
 
 
 }

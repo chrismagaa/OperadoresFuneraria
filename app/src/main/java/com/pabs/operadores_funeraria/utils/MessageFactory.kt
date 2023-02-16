@@ -17,8 +17,9 @@ object MessageFactory {
     fun getDialogInfo(context: Context): AlertDialog.Builder{
         val dialogView = View.inflate(context, R.layout.dialog_info, null)
         dialogView.findViewById<TextView>(R.id.tvVersion).text = "Versión ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-        return AlertDialog.Builder(context)
-            .setView(dialogView)
+
+        return AlertDialog.Builder(context).setView(dialogView)
+
     }
 
 

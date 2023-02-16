@@ -22,4 +22,10 @@
     <style name="Theme.OperadoresFuneraria.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.OperadoresFuneraria.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    <style name="TransparentDialog" parent="android:Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>
