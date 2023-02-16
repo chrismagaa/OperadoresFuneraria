@@ -1,14 +1,16 @@
 package com.pabs.operadores_funeraria.ui.main.ui.servicio
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.pabs.operadores_funeraria.R
+import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.databinding.FragmentServicioBinding
 import com.pabs.operadores_funeraria.ui.main.MainViewModel
 import com.pabs.operadores_funeraria.utils.MessageFactory
@@ -38,12 +41,16 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         const val TAG = "ServicioFragment"
     }
 
+    private var dialogLoading: AlertDialog? = null
+    private lateinit var bottomSheet: NestedScrollView
     private var _binding: FragmentServicioBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     lateinit var bsb: BottomSheetBehavior<NestedScrollView>
 
     private val vmMain: MainViewModel by activityViewModels()
+
+    private var servicio: ServicioFuneral? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +61,8 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
         createFragmentMap()
         setupBottomSheet()
+       // vmMain.servicio.value?.let { updateUI(it) }
+
 
         return binding.root
     }
@@ -72,23 +81,30 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         //pintar destino
         vmMain.servicio.observe(viewLifecycleOwner) {servicio ->
             if (servicio != null) {
-                if (servicio.destino_lat != null && servicio.destino_lng != null) {
-                    val latLng = LatLng(servicio.destino_lat, servicio.destino_lng)
-                    mMap.addMarker(
-                        MarkerOptions()
-                            .position(latLng)
-                            .title(servicio.destino_name)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.house))
-                    )
+                updateUI(servicio)
+            }
+        }
+
+        vmMain.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading != null) {
+                if(isLoading){
+                    dialogLoading = MessageFactory.getDialogLoading(requireContext(), "Cargando servicio...").show()
+                }else{
+                    if(dialogLoading!= null && dialogLoading!!.isShowing){
+                        dialogLoading!!.dismiss()
+                    }
                 }
             }
         }
 
 
+
     }
 
+
+
     private fun setupBottomSheet() {
-        val bottomSheet = binding.root.findViewById<NestedScrollView>(R.id.bottomSheet)
+        bottomSheet = binding.root.findViewById<NestedScrollView>(R.id.bottomSheet)
         bsb = BottomSheetBehavior.from(bottomSheet)
         bsb.setPeekHeight(370, true)
         bsb.state = BottomSheetBehavior.STATE_EXPANDED
@@ -97,7 +113,6 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         bottomSheet.findViewById<ConstraintLayout>(R.id.btnRuta).setOnClickListener {
             startNavigation()
         }
-
     /*
 
         bottomSheet.findViewById<ImageView>(R.id.btnInfo).setOnClickListener{
@@ -107,10 +122,39 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
      */
     }
 
+    private fun updateUI(servicio: ServicioFuneral) {
+        bottomSheet.findViewById<TextView>(R.id.tvTitle).text = servicio.reco_name
+        bottomSheet.findViewById<TextView>(R.id.tvAddress).text = servicio.reco_address
+        val tvTelefono = bottomSheet.findViewById<TextView>(R.id.tvTelefonoCliente)
+        tvTelefono.text = servicio.telefono
+        tvTelefono.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${servicio.telefono}"))
+            startActivity(intent)
+        }
+        bottomSheet.findViewById<TextView>(R.id.tvTipoCuentaData).text = servicio.tipo_cliente
+        bottomSheet.findViewById<TextView>(R.id.tvNoServicio).text = "No Servicio: ${ servicio.servicio }"
+        bottomSheet.findViewById<TextView>(R.id.tvPlanData).text = servicio.plan
+        bottomSheet.findViewById<TextView>(R.id.tvClienteName).text = servicio.cliente
+
+        if (servicio.reco_lat != null && servicio.reco_lng != null) {
+            val latLng = LatLng(servicio.reco_lat, servicio.reco_lng)
+            mMap.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title(servicio.reco_name)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.house))
+            )
+
+            if(::mMap.isInitialized){
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            }
+        }
+    }
+
     private fun showDialogInfo() {
-        val info = "Destino name: ${vmMain.servicio.value?.destino_name} \n " +
-                "Destino lat: ${vmMain.servicio.value?.destino_lat} \n " +
-                "Destino lng: ${vmMain.servicio.value?.destino_lng} \n " +
+        val info = "Destino name: ${vmMain.servicio.value?.reco_name} \n " +
+                "Destino lat: ${vmMain.servicio.value?.reco_lat} \n " +
+                "Destino lng: ${vmMain.servicio.value?.reco_lng} \n " +
                 "URL: ${vmMain.servicio.value?.url} "
         MessageFactory.getDialog(requireContext(), MessageType.INFO, "Información del servicio", info, {}, "OK").show()
     }
@@ -118,10 +162,10 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
     private fun startNavigation() {
         vmMain.servicio.value?.let {servicio ->
 
-            if (servicio.destino_lat != null && servicio.destino_lng != null) {
+            if (servicio.reco_lat != null && servicio.reco_lng != null) {
 
                 val gmmIntentUri =
-                    Uri.parse("google.navigation:q=${servicio.destino_lat},${servicio.destino_lng}")
+                    Uri.parse("google.navigation:q=${servicio.reco_lat},${servicio.reco_lng}")
                 val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                 mapIntent.setPackage("com.google.android.apps.maps")
                 //  try {
@@ -144,8 +188,12 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         mMap = googleMap
 
 
-        //move camera position on mexico
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.432608, -99.133209), 5f))
+        if(vmMain.servicio.value!=null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(vmMain.servicio.value!!.reco_lat!!, vmMain.servicio.value!!.reco_lng!!), 15f))
+        }else{
+            //move camera position on mexico
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.432608, -99.133209), 5f))
+        }
         enableMyLocation()
 
         mMap.setOnMapClickListener {

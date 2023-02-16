@@ -1,6 +1,7 @@
 package com.pabs.operadores_funeraria.data.network
 
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
+import com.pabs.operadores_funeraria.data.network.model.ServicioResponse
 import com.pabs.operadores_funeraria.utils.Constantes.LOGIN_URL
 import com.pabs.operadores_funeraria.utils.Constantes.SERVICIO_URL
 import retrofit2.Response
@@ -23,8 +24,8 @@ interface ApiService {
 
     @GET(SERVICIO_URL)
     suspend fun servicio(
-        @Query("id") id: String,
-    ): Response<LoginResponse>
+        @Query("id") id: Int,
+    ): Response<ServicioResponse>
 
 
 }

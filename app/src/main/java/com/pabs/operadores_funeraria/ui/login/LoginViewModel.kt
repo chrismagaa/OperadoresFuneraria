@@ -13,7 +13,7 @@ class LoginViewModel: ViewModel() {
 
     private val tag = "LoginViewModel"
 
-    val repository = Repository()
+    private val repository = Repository()
     val isLoading = MutableLiveData<Boolean>()
     val loginResponse = MutableLiveData<LoginResponse?>()
 

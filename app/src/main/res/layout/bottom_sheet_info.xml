@@ -39,7 +39,6 @@
             android:maxEms="5"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="San Javier"
             android:textColor="@color/azul"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -95,13 +94,12 @@
 
 
         <TextView
-            android:id="@+id/tvNoPedido"
+            android:id="@+id/tvNoServicio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="16dp"
-            android:text="No Servicio: 3234"
             android:textColor="@color/blue_light"
             android:textSize="17sp"
             android:textStyle="bold"
@@ -118,13 +116,12 @@
             android:layout_marginEnd="16dp"
             android:lines="2"
             android:maxLines="2"
-            android:text="Av Pablo Casals 640"
             android:textColor="@color/gray_color"
             android:textSize="17sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvNoPedido" />
+            app:layout_constraintTop_toBottomOf="@+id/tvNoServicio" />
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -174,7 +171,6 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="16dp"
                 android:gravity="top"
-                android:text="Juan Orozco"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -233,7 +229,7 @@
                 android:autoLink="phone"
                 android:gravity="top"
                 android:linksClickable="true"
-                android:text="+52 4354354543"
+                android:text="23234344"
                 android:textColorLink="@color/azul"
                 android:textSize="17sp"
                 android:textStyle="bold|italic"
@@ -265,7 +261,7 @@
                 android:layout_marginTop="16dp"
                 android:foregroundGravity="top"
                 android:gravity="top"
-                android:text="TIPO CLIENTE"
+                android:text="Tipo de cliente"
                 android:textColor="@color/blue_light"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -280,7 +276,6 @@
                 android:layout_marginStart="44dp"
                 android:layout_marginTop="2dp"
                 android:gravity="top"
-                android:text="DIRECTO"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/tvPlanData"
@@ -296,7 +291,7 @@
                 android:layout_marginEnd="16dp"
                 android:foregroundGravity="top"
                 android:gravity="top"
-                android:text="PLAN"
+                android:text="Plan"
                 android:textColor="@color/blue_light"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -312,7 +307,6 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="16dp"
                 android:gravity="top"
-                android:text="MADERA ITALIA"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"

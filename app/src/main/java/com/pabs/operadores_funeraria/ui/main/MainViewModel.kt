@@ -2,21 +2,31 @@ package com.pabs.operadores_funeraria.ui.main
 
 import android.content.Context
 import android.location.LocationManager
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.core.ScarletHelper
+import com.pabs.operadores_funeraria.data.Repository
 import com.pabs.operadores_funeraria.data.network.EchoService
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
 import com.pabs.operadores_funeraria.utils.Session
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
+    val isLoading = MutableLiveData<Boolean>()
+    private val tag = "MainViewModel"
+
+    private val repository = Repository()
+
 
     val user = MutableLiveData<User>()
-    val servicio = MutableLiveData<ServicioFuneral>()
+    val servicio = MutableLiveData<ServicioFuneral?>()
 
     val gpsEnabled = MutableLiveData<Boolean>()
 
@@ -62,6 +72,23 @@ class MainViewModel : ViewModel() {
     
     private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
     private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
+
+
+
+    fun refreshServicio(context: Context) {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "refreshServicio()")
+        }
+        viewModelScope.launch {
+            isLoading.postValue(true)
+            val nuevoServicio = repository.getServicio(user.value!!.id)
+            if(nuevoServicio != null){
+                Session.instance.updateServicio(context, nuevoServicio)
+                servicio.postValue(nuevoServicio)
+            }
+            isLoading.postValue(false)
+        }
+    }
 
 
 

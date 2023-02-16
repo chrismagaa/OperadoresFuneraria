@@ -22,6 +22,14 @@ object MessageFactory {
 
     }
 
+    fun getDialogLoading(ctx: Context, message: String): AlertDialog.Builder {
+        val viewLoading = View.inflate(ctx, R.layout.dialog_refresh_service, null)
+        viewLoading.findViewById<TextView>(R.id.tvMessageLoading).text = message
+
+        return AlertDialog.Builder(ctx).setView(viewLoading)
+    }
+
+
 
 
     fun getDialog(context: Context, type: MessageType, title: String, message: String, onClickPositiveButton: () -> Unit, positiveText: String? = "ACEPTAR", negativeText: String? = "CANCELAR"): AlertDialog.Builder {
@@ -57,4 +65,6 @@ object MessageFactory {
             }
         }
     }
+
+
 }

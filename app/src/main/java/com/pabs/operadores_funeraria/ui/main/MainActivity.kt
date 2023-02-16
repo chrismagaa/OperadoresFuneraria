@@ -199,14 +199,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun observerServicio() {
         vmMain.servicio.observe(this) { servicio ->
-            if (BuildConfig.DEBUG) {
-                Toast.makeText(this, "URL: ${servicio.url}", Toast.LENGTH_SHORT).show()
-                Log.d(TAG, "URL: ${servicio.url}")
+            if(servicio != null){
+                if (BuildConfig.DEBUG) {
+                    Toast.makeText(this, "URL: ${servicio.url}", Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, "URL: ${servicio.url}")
+                }
+                //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
+                //Comenzamos la conexión con el websocket
+                vmMain.setupWebSocketService(servicio.url!!)
+                observeConnection()
             }
-            //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
-            //Comenzamos la conexión con el websocket
-            vmMain.setupWebSocketService(servicio.url!!)
-            observeConnection()
+
         }
     }
 
@@ -317,7 +320,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_refresh -> {
-               Toast.makeText(this, "Pendiente refrescar", Toast.LENGTH_SHORT).show()
+                vmMain.refreshServicio(this)
                 true
             }
             else -> super.onOptionsItemSelected(item)
