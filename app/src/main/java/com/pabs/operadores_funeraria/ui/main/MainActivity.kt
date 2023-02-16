@@ -11,10 +11,13 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -23,6 +26,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.pabs.operadores_funeraria.BuildConfig
@@ -30,12 +35,9 @@ import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.data.network.model.MyLocationService
 import com.pabs.operadores_funeraria.databinding.ActivityMainBinding
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
-import com.pabs.operadores_funeraria.utils.MessageFactory
-import com.pabs.operadores_funeraria.utils.MessageType
-import com.pabs.operadores_funeraria.utils.StatusWebConnection
+import com.pabs.operadores_funeraria.utils.*
 import com.pabs.operadores_funeraria.utils.location.LocationService
 import com.pabs.operadores_funeraria.utils.location.LocationStateChangeBroadcastReceiver
-import com.pabs.operadores_funeraria.utils.isPermissionsGranted
 import com.tinder.scarlet.Message
 import com.tinder.scarlet.WebSocket
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity() {
     private val internalLocationChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val stateGPS = intent.getStringExtra("Gps_state")
-            if (stateGPS == "Gps Disabled") {
+            if (stateGPS == StatusGPSConnection.DISABLED.name) {
                 vmMain.gpsEnabled.postValue(false)
             } else {
                 vmMain.gpsEnabled.postValue(true)
@@ -110,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_servicio, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_servicio, R.id.nav_slideshow
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -137,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         //observamos gps habilitado
         vmMain.gpsEnabled.observe(this) {
             if (it) {
-                changeStatusTitleGps("GPS Habilitado", R.color.green)
+                changeStatusGps(StatusGPSConnection.ENABLED)
                 //Comenzamos a obtener la ubicación en tiempo real
                 if (this.isPermissionsGranted()) {
                     vmMain.permissionEnabledLocation.postValue(true)
@@ -149,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     requestLocationPermission(this)
                 }
             } else {
-                changeStatusTitleGps("GPS Deshabilitado", R.color.red)
+                changeStatusGps(StatusGPSConnection.DISABLED)
                 mostrarDialogoGPSDeshabilitado()
             }
         }
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mostrarDialogoGPSDeshabilitado() {
-        if(dialogGPS == null || !dialogGPS!!.isShowing){
+        if (dialogGPS == null || !dialogGPS!!.isShowing) {
             dialogGPS = MessageFactory.getDialog(
                 this,
                 MessageType.ERROR,
@@ -197,10 +199,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeStatusTitleGps(title: String, color: Int) {
-        findViewById<TextView>(R.id.tv_status_gps).apply {
-            text = title
-            setBackgroundColor(ContextCompat.getColor(this@MainActivity, color))
+    private fun changeStatusGps(status: StatusGPSConnection) {
+        findViewById<ImageView>(R.id.ivStatusGPS).background =
+            ContextCompat.getDrawable(this, status.icon())
+
+        val animationStatusGPS: LottieAnimationView =
+            findViewById<LottieAnimationView>(R.id.animationStatusGPS)
+
+        if (status.animation() != null) {
+            animationStatusGPS.apply {
+                visibility = View.VISIBLE
+                repeatMode = LottieDrawable.RESTART
+                playAnimation()
+            }
+
+        } else {
+
+            animationStatusGPS.visibility = View.GONE
+            animationStatusGPS.pauseAnimation()
         }
     }
 
@@ -338,10 +354,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun onReceiveResponseConnection(response: WebSocket.Event) {
         when (response) {
-            is WebSocket.Event.OnConnectionOpened<*> -> changeStatusTitle(StatusWebConnection.OPENED)
-            is WebSocket.Event.OnConnectionClosed -> changeStatusTitle(StatusWebConnection.CLOSED)
-            is WebSocket.Event.OnConnectionClosing -> changeStatusTitle(StatusWebConnection.CLOSING)
-            is WebSocket.Event.OnConnectionFailed -> changeStatusTitle(StatusWebConnection.FAILED)
+            is WebSocket.Event.OnConnectionOpened<*> -> changeStatusWEB(StatusWebConnection.OPENED)
+            is WebSocket.Event.OnConnectionClosed -> changeStatusWEB(StatusWebConnection.CLOSED)
+            is WebSocket.Event.OnConnectionClosing -> changeStatusWEB(StatusWebConnection.CLOSING)
+            is WebSocket.Event.OnConnectionFailed -> changeStatusWEB(StatusWebConnection.FAILED)
             is WebSocket.Event.OnMessageReceived -> handleOnMessageReceived(response.message)
         }
     }
@@ -359,16 +375,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeStatusTitle(statusWeb: StatusWebConnection) {
-        Toast.makeText(this, title, Toast.LENGTH_SHORT).show()
-        this.findViewById<TextView>(R.id.tv_status_service).apply {
-            text = statusWeb.description()
-            setBackgroundColor(ContextCompat.getColor(context, statusWeb.color()))
+
+    private fun changeStatusWEB(statusWeb: StatusWebConnection) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "changeStatusWEB${statusWeb.description()}")
+            // Toast.makeText(this, statusWeb.name, Toast.LENGTH_SHORT).show()
+        }
+        this.findViewById<ImageView>(R.id.ivStatusWEB).background =
+            ContextCompat.getDrawable(this, statusWeb.icon())
+
+        val animationStatusWEB: LottieAnimationView =
+            findViewById<LottieAnimationView>(R.id.animationStatusWeb)
+        if (statusWeb.animation() != null) {
+            animationStatusWEB.apply {
+                visibility = View.VISIBLE
+                repeatMode = LottieDrawable.RESTART
+                playAnimation()
+            }
+        } else {
+            animationStatusWEB.visibility = View.GONE
+            animationStatusWEB.pauseAnimation()
         }
     }
 
 
     override fun onBackPressed() {
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(changeLocationBroadcastReceiver)
+        unregisterReceiver(locationStateChangeBroadcastReceiver);
+        unregisterReceiver(internalLocationChangeReceiver);
     }
 
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OperadoresFuneraria</string>
+    <string name="app_name">Operativos Funeraria</string>
     <!-- Strings related to login -->
     <string name="prompt_user_name">Nombre de usuario</string>
     <string name="prompt_password">Contraseña</string>
@@ -23,4 +23,5 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="location_change_receiver">android.location.PROVIDERS_CHANGED</string>
+    <string name="menu_info">Info</string>
 </resources>

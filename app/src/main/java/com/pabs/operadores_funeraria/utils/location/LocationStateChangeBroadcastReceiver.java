@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 
 import com.pabs.operadores_funeraria.R;
+import com.pabs.operadores_funeraria.utils.StatusGPSConnection;
 
 public class LocationStateChangeBroadcastReceiver extends BroadcastReceiver
 {
@@ -16,9 +17,9 @@ public class LocationStateChangeBroadcastReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals(context.getString(R.string.location_change_receiver))) {
             if (!isGpsEnabled(context)) {
-                sendInternalBroadcast(context, "Gps Disabled");
+                sendInternalBroadcast(context, StatusGPSConnection.DISABLED.name());
             }else {
-                sendInternalBroadcast(context, "Gps Enabled");
+                sendInternalBroadcast(context, StatusGPSConnection.ENABLED.name());
             }
         }
     }
