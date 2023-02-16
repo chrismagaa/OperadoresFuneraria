@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_servicio, R.id.nav_slideshow
+                R.id.nav_servicio
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -123,6 +123,12 @@ class MainActivity : AppCompatActivity() {
         navView.menu.findItem(R.id.nav_info).setOnMenuItemClickListener   {
             drawerLayout.closeDrawer(GravityCompat.START)
             MessageFactory.getDialogInfo(this).show()
+            true
+        }
+
+        navView.menu.findItem(R.id.nav_log_out).setOnMenuItemClickListener   {
+            drawerLayout.closeDrawer(GravityCompat.START)
+            showDialogSalir()
             true
         }
 
@@ -310,8 +316,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_salir -> {
-                showDialogSalir()
+            R.id.action_refresh -> {
+               Toast.makeText(this, "Pendiente refrescar", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -5,14 +5,13 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
-import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -42,7 +41,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
     private var _binding: FragmentServicioBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
-    lateinit var bsb: BottomSheetBehavior<ConstraintLayout>
+    lateinit var bsb: BottomSheetBehavior<NestedScrollView>
 
     private val vmMain: MainViewModel by activityViewModels()
 
@@ -88,30 +87,24 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
     }
 
-
     private fun setupBottomSheet() {
-        binding.root.findViewById<ConstraintLayout>(R.id.bottomSheet)
-        var bottomSheet = binding.root.findViewById<ConstraintLayout>(R.id.bottomSheet)
+        val bottomSheet = binding.root.findViewById<NestedScrollView>(R.id.bottomSheet)
         bsb = BottomSheetBehavior.from(bottomSheet)
+        bsb.setPeekHeight(370, true)
         bsb.state = BottomSheetBehavior.STATE_EXPANDED
         bsb.isHideable = false
 
-        bottomSheet.findViewById<Button>(R.id.btnMaps).setOnClickListener {
+        bottomSheet.findViewById<ConstraintLayout>(R.id.btnRuta).setOnClickListener {
             startNavigation()
         }
 
-        bottomSheet.findViewById<Button>(R.id.btnDestino).setOnClickListener {
-            vmMain.servicio.value?.let {servicio ->
-                if (servicio.destino_lat != null && servicio.destino_lng != null) {
-                    val latLng = LatLng(servicio.destino_lat, servicio.destino_lng)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-                }
-            }
-        }
+    /*
 
         bottomSheet.findViewById<ImageView>(R.id.btnInfo).setOnClickListener{
             showDialogInfo()
         }
+
+     */
     }
 
     private fun showDialogInfo() {
@@ -155,6 +148,10 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.432608, -99.133209), 5f))
         enableMyLocation()
 
+        mMap.setOnMapClickListener {
+            //Hide Dialog
+            bsb.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
     }
 
     override fun onDestroyView() {

@@ -12,9 +12,4 @@
         tools:layout="@layout/fragment_servicio" />
 
 
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.pabs.operadores_funeraria.ui.main.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
 </navigation>
