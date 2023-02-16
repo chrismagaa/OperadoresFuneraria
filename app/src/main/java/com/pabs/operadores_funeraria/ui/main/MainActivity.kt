@@ -424,12 +424,7 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(changeLocationBroadcastReceiver)
-        unregisterReceiver(locationStateChangeBroadcastReceiver);
-        unregisterReceiver(internalLocationChangeReceiver);
-    }
+
 
 
 

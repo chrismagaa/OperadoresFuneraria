@@ -23,7 +23,8 @@
         <service android:name=".utils.location.LocationService" android:foregroundServiceType="location"/>
         <activity
             android:name=".ui.launch.LaunchActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:theme="@style/AppFullScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
