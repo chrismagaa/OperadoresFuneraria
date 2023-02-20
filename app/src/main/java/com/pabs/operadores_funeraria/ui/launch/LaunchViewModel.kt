@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.data.Repository
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
+import com.pabs.operadores_funeraria.data.network.model.VersionAppResponse
 import kotlinx.coroutines.launch
 
 class LaunchViewModel: ViewModel() {
@@ -16,7 +17,21 @@ class LaunchViewModel: ViewModel() {
 
     private val repository = Repository()
 
-    private val isLoading = MutableLiveData<Boolean>()
+    val versionApp = MutableLiveData<VersionAppResponse?>()
+
+    fun getVersionApp(){
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "getVersionApp()")
+        }
+        viewModelScope.launch {
+            val response = repository.getVersionApp()
+            if(response?.status_code == "200"){
+                    versionApp.postValue(response)
+            }else{
+                versionApp.postValue(null)
+            }
+        }
+    }
 
 
 }

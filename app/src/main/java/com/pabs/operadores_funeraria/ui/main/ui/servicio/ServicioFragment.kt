@@ -61,7 +61,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
         createFragmentMap()
         setupBottomSheet()
-       // vmMain.servicio.value?.let { updateUI(it) }
+        // vmMain.servicio.value?.let { updateUI(it) }
 
 
         return binding.root
@@ -79,7 +79,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         }
 
         //pintar destino
-        vmMain.servicio.observe(viewLifecycleOwner) {servicio ->
+        vmMain.servicio.observe(viewLifecycleOwner) { servicio ->
             if (servicio != null) {
                 updateUI(servicio)
             }
@@ -87,20 +87,30 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
         vmMain.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading != null) {
-                if(isLoading){
-                    dialogLoading = MessageFactory.getDialogLoading(requireContext(), "Cargando servicio...").show()
-                }else{
-                    if(dialogLoading!= null && dialogLoading!!.isShowing){
+                if (isLoading) {
+                    dialogLoading =
+                        MessageFactory.getDialogLoading(requireContext(), "Cargando servicio...")
+                            .show()
+                } else {
+                    if (dialogLoading != null && dialogLoading!!.isShowing) {
                         dialogLoading!!.dismiss()
                     }
                 }
             }
         }
 
-
-
+        vmMain.distancia.observe(viewLifecycleOwner) { distancia ->
+            if (distancia != null) {
+                // Toast.makeText(requireContext(), "Distancia: $distancia", Toast.LENGTH_SHORT).show()
+                val btnIniciar = bottomSheet.findViewById<TextView>(R.id.ped_route_text)
+                if (distancia < 0.500) {
+                    btnIniciar.text = "Terminar Recolección"
+                } else {
+                    btnIniciar.text = "Iniciar"
+                }
+            }
+        }
     }
-
 
 
     private fun setupBottomSheet() {
@@ -110,16 +120,22 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         bsb.state = BottomSheetBehavior.STATE_EXPANDED
         bsb.isHideable = false
 
+
+        val btnIniciar = bottomSheet.findViewById<TextView>(R.id.ped_route_text)
         bottomSheet.findViewById<ConstraintLayout>(R.id.btnRuta).setOnClickListener {
-            startNavigation()
+            if (btnIniciar.text == "Iniciar") {
+                startNavigation()
+            }else{
+                Toast.makeText(requireContext(), "Recolección Finalizada", Toast.LENGTH_SHORT).show()
+            }
         }
-    /*
+        /*
 
-        bottomSheet.findViewById<ImageView>(R.id.btnInfo).setOnClickListener{
-            showDialogInfo()
-        }
+            bottomSheet.findViewById<ImageView>(R.id.btnInfo).setOnClickListener{
+                showDialogInfo()
+            }
 
-     */
+         */
     }
 
     private fun updateUI(servicio: ServicioFuneral) {
@@ -132,7 +148,8 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             startActivity(intent)
         }
         bottomSheet.findViewById<TextView>(R.id.tvTipoCuentaData).text = servicio.tipo_cliente
-        bottomSheet.findViewById<TextView>(R.id.tvNoServicio).text = "No Servicio: ${ servicio.servicio }"
+        bottomSheet.findViewById<TextView>(R.id.tvNoServicio).text =
+            "No Servicio: ${servicio.servicio}"
         bottomSheet.findViewById<TextView>(R.id.tvPlanData).text = servicio.plan
         bottomSheet.findViewById<TextView>(R.id.tvClienteName).text = servicio.cliente
 
@@ -145,7 +162,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.house))
             )
 
-            if(::mMap.isInitialized){
+            if (::mMap.isInitialized) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
             }
         }
@@ -156,11 +173,18 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
                 "Destino lat: ${vmMain.servicio.value?.reco_lat} \n " +
                 "Destino lng: ${vmMain.servicio.value?.reco_lng} \n " +
                 "URL: ${vmMain.servicio.value?.url} "
-        MessageFactory.getDialog(requireContext(), MessageType.INFO, "Información del servicio", info, {}, "OK").show()
+        MessageFactory.getDialog(
+            requireContext(),
+            MessageType.INFO,
+            "Información del servicio",
+            info,
+            {},
+            "OK"
+        ).show()
     }
 
     private fun startNavigation() {
-        vmMain.servicio.value?.let {servicio ->
+        vmMain.servicio.value?.let { servicio ->
 
             if (servicio.reco_lat != null && servicio.reco_lng != null) {
 
@@ -188,9 +212,16 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         mMap = googleMap
 
 
-        if(vmMain.servicio.value!=null){
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(vmMain.servicio.value!!.reco_lat!!, vmMain.servicio.value!!.reco_lng!!), 15f))
-        }else{
+        if (vmMain.servicio.value != null) {
+            mMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        vmMain.servicio.value!!.reco_lat!!,
+                        vmMain.servicio.value!!.reco_lng!!
+                    ), 15f
+                )
+            )
+        } else {
             //move camera position on mexico
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.432608, -99.133209), 5f))
         }
@@ -221,9 +252,13 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
     override fun onLocationChanged(p0: Location) {
         //add the same marker
-        Toast.makeText(requireContext(), "Latitud: ${p0.latitude} Longitud: ${p0.longitude}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            "Latitud: ${p0.latitude} Longitud: ${p0.longitude}",
+            Toast.LENGTH_SHORT
+        ).show()
         val latLng = LatLng(p0.latitude, p0.longitude)
-        val markerCarroza =  MarkerOptions()
+        val markerCarroza = MarkerOptions()
             .position(latLng)
             .title("Carroza")
             .icon(BitmapDescriptorFactory.fromResource(R.drawable.funebre))

@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.SphericalUtil
 import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.core.ScarletHelper
 import com.pabs.operadores_funeraria.data.Repository
@@ -13,6 +15,7 @@ import com.pabs.operadores_funeraria.data.network.EchoService
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
 import com.pabs.operadores_funeraria.utils.Session
+import com.pabs.operadores_funeraria.utils.Utils
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import kotlinx.coroutines.launch
@@ -27,6 +30,7 @@ class MainViewModel : ViewModel() {
 
     val user = MutableLiveData<User>()
     val servicio = MutableLiveData<ServicioFuneral?>()
+    val distancia = MutableLiveData<Double>()
 
     val gpsEnabled = MutableLiveData<Boolean>()
 
@@ -47,11 +51,24 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun setDistancia(lat: Double, lon: Double) {
+        if (servicio.value == null) {
+            return
+        }
+
+        val distance = SphericalUtil.computeDistanceBetween(
+            LatLng(lat, lon),
+            LatLng(servicio.value!!.reco_lat!!, servicio.value!!.reco_lng!!)
+        );
+
+        this.distancia.postValue(distance/1000)
+    }
+
     fun logout(context: Context, onLogOut: () -> Unit) {
         Session.instance.logout(context, onLogOut)
     }
 
-    fun updateUser(context: Context,user : User){
+    fun updateUser(context: Context, user: User) {
         Session.instance.updateUser(context, user)
         this.user.postValue(user)
     }
@@ -69,10 +86,9 @@ class MainViewModel : ViewModel() {
         )
 
     }
-    
+
     private fun provideWebSocketService(scarlet: Scarlet) = scarlet.create(EchoService::class.java)
     private fun provideStreamAdapterFactory() = RxJava2StreamAdapterFactory()
-
 
 
     fun refreshServicio(context: Context) {
@@ -82,27 +98,13 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             val nuevoServicio = repository.getServicio(user.value!!.id)
-            if(nuevoServicio != null){
+            if (nuevoServicio != null) {
                 Session.instance.updateServicio(context, nuevoServicio)
                 servicio.postValue(nuevoServicio)
             }
             isLoading.postValue(false)
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

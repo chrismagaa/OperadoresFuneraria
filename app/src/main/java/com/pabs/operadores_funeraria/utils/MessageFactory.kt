@@ -29,6 +29,16 @@ object MessageFactory {
         return AlertDialog.Builder(ctx).setView(viewLoading)
     }
 
+    fun getDialogUpdate(ctx: Context, version: String): AlertDialog.Builder {
+        val viewLoading = View.inflate(ctx, R.layout.dialog_update_app, null)
+        val btnGoToPlayStore = viewLoading.findViewById<TextView>(R.id.btnGoToPlayStore)
+        viewLoading.findViewById<TextView>(R.id.tvNuevaVersion).text = "Nueva versión $version"
+        btnGoToPlayStore.setOnClickListener {
+                ctx.goToPlayStore()
+        }
+
+        return AlertDialog.Builder(ctx).setView(viewLoading)
+    }
 
 
 

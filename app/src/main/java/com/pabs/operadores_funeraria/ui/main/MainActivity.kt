@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -66,6 +67,9 @@ class MainActivity : AppCompatActivity() {
             val latitude = intent?.getStringExtra(EXTRA_LATITUDE).toString().toDouble()
             val longitude = intent?.getStringExtra(EXTRA_LONGITUDE).toString().toDouble()
 
+            vmMain.setDistancia(latitude, longitude)
+
+
             val message = MyLocationService(
                 vmMain.user.value!!.autoPlaca,
                 vmMain.user.value!!.username,
@@ -73,10 +77,11 @@ class MainActivity : AppCompatActivity() {
                 longitude
             )
 
-
             Log.d(TAG, MyLocationService.toJson(message))
             sendLocation(MyLocationService.toJson(message))
         }
+
+
     }
 
     private val internalLocationChangeReceiver = object : BroadcastReceiver() {
@@ -118,15 +123,17 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+
+
         vmMain.onCreate(this)
 
-        navView.menu.findItem(R.id.nav_info).setOnMenuItemClickListener   {
+        navView.menu.findItem(R.id.nav_info).setOnMenuItemClickListener {
             drawerLayout.closeDrawer(GravityCompat.START)
             MessageFactory.getDialogInfo(this).show()
             true
         }
 
-        navView.menu.findItem(R.id.nav_log_out).setOnMenuItemClickListener   {
+        navView.menu.findItem(R.id.nav_log_out).setOnMenuItemClickListener {
             drawerLayout.closeDrawer(GravityCompat.START)
             showDialogSalir()
             true
@@ -150,11 +157,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
-
-
-
 
 
     private fun observerGps() {
@@ -199,7 +201,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun observerServicio() {
         vmMain.servicio.observe(this) { servicio ->
-            if(servicio != null){
+            if (servicio != null) {
                 if (BuildConfig.DEBUG) {
                     Toast.makeText(this, "URL: ${servicio.url}", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "URL: ${servicio.url}")
@@ -426,9 +428,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
     }
-
-
-
 
 
 }

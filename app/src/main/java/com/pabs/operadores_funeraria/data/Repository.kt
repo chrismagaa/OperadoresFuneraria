@@ -5,7 +5,7 @@ import androidx.viewbinding.BuildConfig
 import com.pabs.operadores_funeraria.data.network.ApiClient
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
-import com.pabs.operadores_funeraria.data.network.model.ServicioResponse
+import com.pabs.operadores_funeraria.data.network.model.VersionAppResponse
 
 class Repository {
     private val tag = "Repository"
@@ -25,5 +25,14 @@ class Repository {
 
         val response = api.getServicio(id)
         return response?.servicio
+    }
+
+
+    suspend fun getVersionApp(): VersionAppResponse? {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "getVersionApp()")
+        }
+
+        return api.getVersionApp()
     }
 }

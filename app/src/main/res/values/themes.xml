@@ -23,7 +23,7 @@
 
     <style name="Theme.OperadoresFuneraria.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppFullScreenTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+    <style name="AppFullScreenTheme" parent="Theme.OperadoresFuneraria.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>

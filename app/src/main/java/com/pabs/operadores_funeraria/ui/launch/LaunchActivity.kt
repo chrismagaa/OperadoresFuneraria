@@ -5,10 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
-import androidx.viewbinding.BuildConfig
+import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
 import com.pabs.operadores_funeraria.ui.main.MainActivity
+import com.pabs.operadores_funeraria.utils.MessageFactory
 import com.pabs.operadores_funeraria.utils.Session
 
 class LaunchActivity : AppCompatActivity() {
@@ -23,11 +24,11 @@ class LaunchActivity : AppCompatActivity() {
 
         Session.instance.configure(this)
 
-        if(Session.instance.user == null){
-            goToLoginActivity()
-        }else{
-            iniciar(Session.instance.user?.role?:"")
-        }
+
+
+
+        vmLaunch.getVersionApp()
+
 
         vmLaunch.loginResponse.observe(this){
             it?.let {loginResponse ->
@@ -38,6 +39,38 @@ class LaunchActivity : AppCompatActivity() {
                     goToLoginActivity()
                 }
             }
+        }
+
+        vmLaunch.versionApp.observe(this){versionApp ->
+            if(versionApp == null){
+               updateUI()
+            }else{
+                if(BuildConfig.VERSION_CODE < versionApp.version_code!!){
+                    showDialogUpdateApp("${versionApp.version_name} (${versionApp.version_code})")
+                }else{
+                    updateUI()
+                }
+
+            }
+
+
+        }
+    }
+
+    private fun showDialogUpdateApp(version: String) {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "showDialogUpdateApp()")
+        }
+        val dialog = MessageFactory.getDialogUpdate(this, version)
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
+    private fun updateUI(){
+        if(Session.instance.user == null){
+            goToLoginActivity()
+        }else{
+            iniciar(Session.instance.user?.role?:"")
         }
     }
 
