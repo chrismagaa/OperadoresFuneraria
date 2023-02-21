@@ -10,6 +10,7 @@ import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -89,8 +90,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             if (isLoading != null) {
                 if (isLoading) {
                     dialogLoading =
-                        MessageFactory.getDialogLoading(requireContext(), "Cargando servicio...")
-                            .show()
+                        MessageFactory.getDialogLoading(requireContext(), "Espere porfavor...").show()
                 } else {
                     if (dialogLoading != null && dialogLoading!!.isShowing) {
                         dialogLoading!!.dismiss()
@@ -103,10 +103,35 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             if (distancia != null) {
                 // Toast.makeText(requireContext(), "Distancia: $distancia", Toast.LENGTH_SHORT).show()
                 val btnIniciar = bottomSheet.findViewById<TextView>(R.id.ped_route_text)
+                val ivIniciar = bottomSheet.findViewById<ImageView>(R.id.ped_route_iv)
                 if (distancia < 0.500) {
                     btnIniciar.text = "Terminar Recolección"
+                    ivIniciar.visibility = View.GONE
                 } else {
                     btnIniciar.text = "Iniciar"
+                    ivIniciar.visibility = View.VISIBLE
+                }
+            }
+        }
+
+
+        vmMain.finalizarReco.observe(viewLifecycleOwner) { finalizar ->
+            if (finalizar != null) {
+                if (finalizar.is_finalized) {
+                    MessageFactory.getDialog(
+                        requireContext(),
+                        MessageType.SUCCESS,
+                        "RECOLECCIÓN FINALIZADA",
+                        finalizar.message,{}
+                    ).show()
+                } else {
+                    MessageFactory.getDialog(
+                        requireContext(),
+                        MessageType.ERROR,
+                        "RECOLECCIÓN NO FINALIZADA",
+                        finalizar.message,
+                        {}
+                    ).show()
                 }
             }
         }
@@ -126,7 +151,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             if (btnIniciar.text == "Iniciar") {
                 startNavigation()
             }else{
-                Toast.makeText(requireContext(), "Recolección Finalizada", Toast.LENGTH_SHORT).show()
+                showDialogFinalizarRecoleccion()
             }
         }
         /*
@@ -136,6 +161,12 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             }
 
          */
+    }
+
+    private fun showDialogFinalizarRecoleccion() {
+        MessageFactory.getDialogFinalizarReco(requireContext()){code ->
+            vmMain.finalizarRecoleccion(requireContext(), code)
+        }.show()
     }
 
     private fun updateUI(servicio: ServicioFuneral) {
@@ -171,8 +202,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
     private fun showDialogInfo() {
         val info = "Destino name: ${vmMain.servicio.value?.reco_name} \n " +
                 "Destino lat: ${vmMain.servicio.value?.reco_lat} \n " +
-                "Destino lng: ${vmMain.servicio.value?.reco_lng} \n " +
-                "URL: ${vmMain.servicio.value?.url} "
+                "Destino lng: ${vmMain.servicio.value?.reco_lng} \n "
         MessageFactory.getDialog(
             requireContext(),
             MessageType.INFO,

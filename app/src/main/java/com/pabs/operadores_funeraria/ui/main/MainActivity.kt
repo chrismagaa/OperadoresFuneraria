@@ -141,10 +141,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
-
-
-
         observerUser()
 
         observerServicio()
@@ -154,6 +150,8 @@ class MainActivity : AppCompatActivity() {
 
         //Registramos el broadcast receiver de los cambios en la ubicación
         registerRecivers()
+
+
 
 
     }
@@ -203,13 +201,13 @@ class MainActivity : AppCompatActivity() {
         vmMain.servicio.observe(this) { servicio ->
             if (servicio != null) {
                 if (BuildConfig.DEBUG) {
-                    Toast.makeText(this, "URL: ${servicio.url}", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "URL: ${servicio.url}")
+                    //show snack bar
+                    Snackbar.make(
+                        binding.root,
+                        "Servicio actualizado ",
+                        Snackbar.LENGTH_LONG
+                    ).setBackgroundTint(ContextCompat.getColor(this, R.color.green)).show()
                 }
-                //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
-                //Comenzamos la conexión con el websocket
-                vmMain.setupWebSocketService(servicio.url!!)
-                observeConnection()
             }
 
         }
@@ -222,6 +220,11 @@ class MainActivity : AppCompatActivity() {
                     it.username
                 binding.navView.getHeaderView(0).findViewById<TextView>(R.id.tvAuto).text =
                     "Carroza: " + it.autoPlaca
+
+                //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
+                //Comenzamos la conexión con el websocket
+                vmMain.setupWebSocketService("wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")
+                observeConnection()
             }
         }
     }
@@ -334,9 +337,9 @@ class MainActivity : AppCompatActivity() {
     private fun showDialogSalir() {
         MessageFactory.getDialog(
             this,
-            MessageType.ERROR,
-            "¿Estas seguro que deseas salir?",
-            "Si continuas se dará por terminado el servicio.",
+            MessageType.INFO,
+            "¿Estas seguro de que quieres salir?",
+            "Si continuas no podras realizar un servicio.",
             {
                 vmMain.logout(this) {
                     unregisterReceiver(changeLocationBroadcastReceiver)

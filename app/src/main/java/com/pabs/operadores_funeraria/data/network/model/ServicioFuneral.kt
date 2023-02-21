@@ -3,7 +3,6 @@ package com.pabs.operadores_funeraria.data.network.model
 import com.google.gson.GsonBuilder
 
 data class ServicioFuneral (
-    val url: String? = "",
     val servicio: String? = "",
     val reco_lat: Double? = null,
     val reco_lng: Double? = null,

@@ -7,7 +7,8 @@ class User(
     val id: Int,
     val username: String,
     val role: String,
-    val autoPlaca: String
+    val autoPlaca: String,
+    val channel_tracking: String
 ) {
     companion object{
         fun toJson(user: User): String{

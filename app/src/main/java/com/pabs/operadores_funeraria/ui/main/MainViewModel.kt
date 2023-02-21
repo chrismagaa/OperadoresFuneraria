@@ -12,6 +12,7 @@ import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.core.ScarletHelper
 import com.pabs.operadores_funeraria.data.Repository
 import com.pabs.operadores_funeraria.data.network.EchoService
+import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
 import com.pabs.operadores_funeraria.utils.Session
@@ -31,6 +32,8 @@ class MainViewModel : ViewModel() {
     val user = MutableLiveData<User>()
     val servicio = MutableLiveData<ServicioFuneral?>()
     val distancia = MutableLiveData<Double>()
+
+    val finalizarReco = MutableLiveData<FinalizarRecoResponse?>()
 
     val gpsEnabled = MutableLiveData<Boolean>()
 
@@ -101,6 +104,21 @@ class MainViewModel : ViewModel() {
             if (nuevoServicio != null) {
                 Session.instance.updateServicio(context, nuevoServicio)
                 servicio.postValue(nuevoServicio)
+            }
+            isLoading.postValue(false)
+        }
+    }
+
+
+    fun finalizarRecoleccion(context: Context, code: String) {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "finalizarRecolección()")
+        }
+        viewModelScope.launch {
+            isLoading.postValue(true)
+            val response = repository.finalizarReco(user.value!!.id, code)
+            if (response != null) {
+                finalizarReco.postValue(response)
             }
             isLoading.postValue(false)
         }

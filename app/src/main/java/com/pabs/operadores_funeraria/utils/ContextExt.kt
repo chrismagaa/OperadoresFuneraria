@@ -20,8 +20,6 @@ import androidx.core.content.ContextCompat
 
 //go to Play Store fun
    fun Context.goToPlayStore() {
-        //val appPackageName = packageName
-
         //PackageName Test
         val appPackageName = "com.camg_apps.carta_de_renuncia"
 

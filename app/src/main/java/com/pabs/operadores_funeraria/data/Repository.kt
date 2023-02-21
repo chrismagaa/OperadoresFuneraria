@@ -3,6 +3,7 @@ package com.pabs.operadores_funeraria.data
 import android.util.Log
 import androidx.viewbinding.BuildConfig
 import com.pabs.operadores_funeraria.data.network.ApiClient
+import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.VersionAppResponse
@@ -34,5 +35,14 @@ class Repository {
         }
 
         return api.getVersionApp()
+    }
+
+
+    suspend fun finalizarReco(id: Int, code: String): FinalizarRecoResponse? {
+        if (BuildConfig.DEBUG) {
+            Log.d(tag, "finalizarReco()")
+        }
+
+        return api.finalizarReco(id, code)
     }
 }

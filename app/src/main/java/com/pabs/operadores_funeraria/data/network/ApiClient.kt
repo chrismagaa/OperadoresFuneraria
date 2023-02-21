@@ -2,7 +2,9 @@ package com.pabs.operadores_funeraria.data.network
 
 import android.util.Log
 import com.pabs.operadores_funeraria.BuildConfig
+import com.pabs.operadores_funeraria.core.Interceptor
 import com.pabs.operadores_funeraria.core.RetrofitHelper
+import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioResponse
 import com.pabs.operadores_funeraria.data.network.model.VersionAppResponse
@@ -22,8 +24,13 @@ class ApiClient {
             Log.d(tag, "login()")
         }
         return withContext(Dispatchers.IO){
-            val response = retrofit.create(ApiService::class.java).login(userName, password)
-            response.body()
+            try{
+                val response = retrofit.create(ApiService::class.java).login(userName, password)
+                response.body()
+            }catch (e: Interceptor.NoInternetException){
+                null
+            }
+
         }
     }
 
@@ -34,8 +41,13 @@ class ApiClient {
             Log.d(tag, "getServicio()")
         }
         return withContext(Dispatchers.IO){
-            val response = retrofit.create(ApiService::class.java).servicio(id)
-            response.body()
+            try{
+                val response = retrofit.create(ApiService::class.java).servicio(id)
+                response.body()
+            }catch (e: Interceptor.NoInternetException){
+                null
+            }
+
         }
     }
 
@@ -44,8 +56,31 @@ class ApiClient {
             Log.d(tag, "getVersionApp()")
         }
         return withContext(Dispatchers.IO){
-            val response = retrofit.create(ApiService::class.java).getVersionApp()
-            response.body()
+            try{
+                val response = retrofit.create(ApiService::class.java).getVersionApp()
+                response.body()
+            }catch (e: Interceptor.NoInternetException) {
+                null
+            }
+        }
+    }
+
+
+    suspend fun finalizarReco(
+        id: Int,
+        code: String
+    ): FinalizarRecoResponse? {
+        if(BuildConfig.DEBUG){
+            Log.d(tag, "finalizarReco()")
+        }
+        return withContext(Dispatchers.IO){
+            try{
+                val response = retrofit.create(ApiService::class.java).finalizarReco(id, code)
+                response.body()
+            }catch (e: Interceptor.NoInternetException){
+                null
+            }
+
         }
     }
 

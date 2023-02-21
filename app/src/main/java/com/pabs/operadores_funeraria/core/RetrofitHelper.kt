@@ -23,4 +23,5 @@ object RetrofitHelper {
             .writeTimeout(1, TimeUnit.MINUTES)
             .addInterceptor(Interceptor())
             .build()
+
 }

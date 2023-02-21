@@ -1,10 +1,12 @@
 package com.pabs.operadores_funeraria.data.network
 
+import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioResponse
 import com.pabs.operadores_funeraria.data.network.model.VersionAppResponse
 import com.pabs.operadores_funeraria.utils.Constantes.LOGIN_URL
 import com.pabs.operadores_funeraria.utils.Constantes.SERVICIO_URL
+import com.pabs.operadores_funeraria.utils.Constantes.VALIDAR_FIN_RECO
 import com.pabs.operadores_funeraria.utils.Constantes.VERSION_APP
 import retrofit2.Response
 import retrofit2.http.Field
@@ -31,6 +33,16 @@ interface ApiService {
 
     @GET(VERSION_APP)
     suspend fun getVersionApp(): Response<VersionAppResponse>
+
+
+    @GET(VALIDAR_FIN_RECO)
+    suspend fun finalizarReco(
+        @Query("id") id: Int,
+        @Query("code") code: String,
+    ): Response<FinalizarRecoResponse>
+
+
+
 
 
 }
