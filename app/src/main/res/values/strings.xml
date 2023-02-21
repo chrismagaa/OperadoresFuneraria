@@ -26,4 +26,7 @@
     <string name="menu_info">Info</string>
     <string name="menu_logout">Cerrar sesión</string>
     <string name="action_refresh">Refrescar</string>
+    <string name="err_msg_enter_user_name">El nombre de usuario es requerido</string>
+    <string name="err_msg_enter_password">La contraseña es requerida</string>
+    <string name="please_wait">Espera porfavor</string>
 </resources>

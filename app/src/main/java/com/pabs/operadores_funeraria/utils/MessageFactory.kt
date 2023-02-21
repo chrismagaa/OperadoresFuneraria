@@ -1,11 +1,14 @@
 package com.pabs.operadores_funeraria.utils
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.R
@@ -99,6 +102,36 @@ object MessageFactory {
                     }
             }
         }
+    }
+
+    fun getSnackBar(activity: Activity, type: MessageType, message: String): Snackbar {
+        val snackBar = Snackbar.make(activity.findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG)
+
+         when(type){
+            MessageType.ERROR -> {
+                snackBar.view.setBackgroundColor(
+                    ContextCompat.getColor(
+                        activity,
+                        R.color.rojo
+                    )
+                )
+            }
+            MessageType.SUCCESS -> {
+                snackBar.view.setBackgroundColor(
+                    ContextCompat.getColor(
+                        activity,
+                        R.color.green
+                    )
+                )            }
+            MessageType.INFO -> {
+                snackBar.view.setBackgroundColor(
+                    ContextCompat.getColor(
+                        activity,
+                        R.color.blue_light
+                    )
+                )            }
+        }
+        return snackBar
     }
 
 
