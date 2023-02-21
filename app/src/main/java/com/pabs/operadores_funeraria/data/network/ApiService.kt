@@ -37,7 +37,8 @@ interface ApiService {
 
     @GET(VALIDAR_FIN_RECO)
     suspend fun finalizarReco(
-        @Query("id") id: Int,
+        @Query("idUser") id: Int,
+        @Query("idServicio") idServicio: Int,
         @Query("code") code: String,
     ): Response<FinalizarRecoResponse>
 

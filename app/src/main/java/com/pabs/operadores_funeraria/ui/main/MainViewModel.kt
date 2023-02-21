@@ -16,7 +16,6 @@ import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
 import com.pabs.operadores_funeraria.utils.Session
-import com.pabs.operadores_funeraria.utils.Utils
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import kotlinx.coroutines.launch
@@ -110,13 +109,13 @@ class MainViewModel : ViewModel() {
     }
 
 
-    fun finalizarRecoleccion(context: Context, code: String) {
+    fun finalizarRecoleccion(code: String) {
         if (BuildConfig.DEBUG) {
             Log.d(tag, "finalizarRecolección()")
         }
         viewModelScope.launch {
             isLoading.postValue(true)
-            val response = repository.finalizarReco(user.value!!.id, code)
+            val response = repository.finalizarReco(user.value!!.id,servicio.value!!.id_servicio!!, code)
             if (response != null) {
                 finalizarReco.postValue(response)
             }

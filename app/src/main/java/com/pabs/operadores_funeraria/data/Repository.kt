@@ -38,11 +38,11 @@ class Repository {
     }
 
 
-    suspend fun finalizarReco(id: Int, code: String): FinalizarRecoResponse? {
+    suspend fun finalizarReco(idUser: Int, idServicio: Int, code: String): FinalizarRecoResponse? {
         if (BuildConfig.DEBUG) {
             Log.d(tag, "finalizarReco()")
         }
 
-        return api.finalizarReco(id, code)
+        return api.finalizarReco(idUser, idServicio, code)
     }
 }

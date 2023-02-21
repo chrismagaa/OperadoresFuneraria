@@ -223,6 +223,7 @@ class MainActivity : AppCompatActivity() {
 
                 //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
                 //Comenzamos la conexión con el websocket
+                Toast.makeText(this, "wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self", Toast.LENGTH_LONG).show()
                 vmMain.setupWebSocketService("wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")
                 observeConnection()
             }

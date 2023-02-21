@@ -165,7 +165,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
     private fun showDialogFinalizarRecoleccion() {
         MessageFactory.getDialogFinalizarReco(requireContext()){code ->
-            vmMain.finalizarRecoleccion(requireContext(), code)
+            vmMain.finalizarRecoleccion(code)
         }.show()
     }
 
@@ -180,7 +180,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         }
         bottomSheet.findViewById<TextView>(R.id.tvTipoCuentaData).text = servicio.tipo_cliente
         bottomSheet.findViewById<TextView>(R.id.tvNoServicio).text =
-            "No Servicio: ${servicio.servicio}"
+            "No Servicio: ${servicio.id_servicio}"
         bottomSheet.findViewById<TextView>(R.id.tvPlanData).text = servicio.plan
         bottomSheet.findViewById<TextView>(R.id.tvClienteName).text = servicio.cliente
 

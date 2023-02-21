@@ -67,7 +67,8 @@ class ApiClient {
 
 
     suspend fun finalizarReco(
-        id: Int,
+        idUser: Int,
+        idServicio: Int,
         code: String
     ): FinalizarRecoResponse? {
         if(BuildConfig.DEBUG){
@@ -75,7 +76,7 @@ class ApiClient {
         }
         return withContext(Dispatchers.IO){
             try{
-                val response = retrofit.create(ApiService::class.java).finalizarReco(id, code)
+                val response = retrofit.create(ApiService::class.java).finalizarReco(idUser,idServicio, code)
                 response.body()
             }catch (e: Interceptor.NoInternetException){
                 null
