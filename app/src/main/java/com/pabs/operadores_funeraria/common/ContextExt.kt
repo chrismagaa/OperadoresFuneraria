@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.common
 
 import android.Manifest
 import android.content.ActivityNotFoundException

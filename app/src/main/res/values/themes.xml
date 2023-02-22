@@ -11,7 +11,9 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+
+        <!-- Font family -->
+        <item name="fontFamily">@font/nunito_regular</item>
     </style>
 
     <style name="Theme.OperadoresFuneraria.NoActionBar">
@@ -41,6 +43,7 @@
         <item name="colorOnSecondary">@color/white</item>
 
         <item name="android:background">#F2F3FDF4</item>
+
     </style>
 
     <style name="AlertDialogError" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
@@ -51,7 +54,7 @@
         <item name="colorSecondaryVariant">@color/red</item>
         <item name="colorOnSecondary">@color/white</item>
 
-        <item name="android:background">#F2FDF1F1</item>
+
     </style>
 
 

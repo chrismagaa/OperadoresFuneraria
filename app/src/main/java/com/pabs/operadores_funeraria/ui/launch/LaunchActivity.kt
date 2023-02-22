@@ -9,8 +9,8 @@ import com.pabs.operadores_funeraria.BuildConfig
 import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
 import com.pabs.operadores_funeraria.ui.main.MainActivity
-import com.pabs.operadores_funeraria.utils.MessageFactory
-import com.pabs.operadores_funeraria.utils.Session
+import com.pabs.operadores_funeraria.common.MessageFactory
+import com.pabs.operadores_funeraria.common.Session
 
 class LaunchActivity : AppCompatActivity() {
 

@@ -6,14 +6,12 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -36,9 +34,9 @@ import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.data.network.model.MyLocationService
 import com.pabs.operadores_funeraria.databinding.ActivityMainBinding
 import com.pabs.operadores_funeraria.ui.login.LoginActivity
-import com.pabs.operadores_funeraria.utils.*
-import com.pabs.operadores_funeraria.utils.location.LocationService
-import com.pabs.operadores_funeraria.utils.location.LocationStateChangeBroadcastReceiver
+import com.pabs.operadores_funeraria.common.*
+import com.pabs.operadores_funeraria.common.location.LocationService
+import com.pabs.operadores_funeraria.common.location.LocationStateChangeBroadcastReceiver
 import com.tinder.scarlet.Message
 import com.tinder.scarlet.WebSocket
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -147,6 +145,8 @@ class MainActivity : AppCompatActivity() {
 
         observerGps()
 
+        observerMessageDialog()
+
 
         //Registramos el broadcast receiver de los cambios en la ubicación
         registerRecivers()
@@ -154,6 +154,14 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    }
+
+    private fun observerMessageDialog() {
+        vmMain.message.observe(this) {
+            it?.let { message ->
+                MessageFactory.getDialog(this, message.type,"Error", message.message,{}).show()
+            }
+        }
     }
 
 
@@ -208,6 +216,12 @@ class MainActivity : AppCompatActivity() {
                         Snackbar.LENGTH_LONG
                     ).setBackgroundTint(ContextCompat.getColor(this, R.color.green)).show()
                 }
+            }else{
+                Snackbar.make(
+                    binding.root,
+                    "No tienes un servicio asignado",
+                    Snackbar.LENGTH_LONG
+                ).setBackgroundTint(ContextCompat.getColor(this, R.color.blue_light)).show()
             }
 
         }
@@ -223,7 +237,7 @@ class MainActivity : AppCompatActivity() {
 
                 //TEST: wss://demo.piesocket.com/v3/channel_124?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self
                 //Comenzamos la conexión con el websocket
-                Toast.makeText(this, "wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self", Toast.LENGTH_LONG).show()
+                //Toast.makeText(this, "wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self", Toast.LENGTH_LONG).show()
                 vmMain.setupWebSocketService("wss://demo.piesocket.com/v3/${it.channel_tracking}?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")
                 observeConnection()
             }
@@ -231,24 +245,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeStatusGps(status: StatusGPSConnection) {
-        findViewById<ImageView>(R.id.ivStatusGPS).background =
-            ContextCompat.getDrawable(this, status.icon())
+      //  findViewById<ImageView>(R.id.ivStatusGPS).background =
+        //    ContextCompat.getDrawable(this, status.icon())
 
-        val animationStatusGPS: LottieAnimationView =
-            findViewById<LottieAnimationView>(R.id.animationStatusGPS)
+        val animationStatusGPS: LottieAnimationView = findViewById<LottieAnimationView>(R.id.animationStatusGPS)
 
-        if (status.animation() != null) {
             animationStatusGPS.apply {
                 visibility = View.VISIBLE
                 repeatMode = LottieDrawable.RESTART
+                setAnimation(status.animation())
                 playAnimation()
             }
 
-        } else {
 
-            animationStatusGPS.visibility = View.GONE
-            animationStatusGPS.pauseAnimation()
-        }
     }
 
 
@@ -412,21 +421,15 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "changeStatusWEB${statusWeb.description()}")
             // Toast.makeText(this, statusWeb.name, Toast.LENGTH_SHORT).show()
         }
-        this.findViewById<ImageView>(R.id.ivStatusWEB).background =
-            ContextCompat.getDrawable(this, statusWeb.icon())
+        //this.findViewById<ImageView>(R.id.ivStatusWEB).background = ContextCompat.getDrawable(this, statusWeb.icon())
 
-        val animationStatusWEB: LottieAnimationView =
-            findViewById<LottieAnimationView>(R.id.animationStatusWeb)
-        if (statusWeb.animation() != null) {
+        val animationStatusWEB: LottieAnimationView = findViewById<LottieAnimationView>(R.id.animationStatusWeb)
             animationStatusWEB.apply {
                 visibility = View.VISIBLE
                 repeatMode = LottieDrawable.RESTART
+                setAnimation(statusWeb.animation())
                 playAnimation()
             }
-        } else {
-            animationStatusWEB.visibility = View.GONE
-            animationStatusWEB.pauseAnimation()
-        }
     }
 
 

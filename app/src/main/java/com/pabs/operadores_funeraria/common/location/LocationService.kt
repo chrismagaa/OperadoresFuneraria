@@ -1,12 +1,10 @@
-package com.pabs.operadores_funeraria.utils.location
+package com.pabs.operadores_funeraria.common.location
 
-import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices

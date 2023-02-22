@@ -15,7 +15,9 @@ import com.pabs.operadores_funeraria.data.network.EchoService
 import com.pabs.operadores_funeraria.data.network.model.FinalizarRecoResponse
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.data.network.model.User
-import com.pabs.operadores_funeraria.utils.Session
+import com.pabs.operadores_funeraria.common.MessageDialog
+import com.pabs.operadores_funeraria.common.MessageType
+import com.pabs.operadores_funeraria.common.Session
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import kotlinx.coroutines.launch
@@ -31,12 +33,16 @@ class MainViewModel : ViewModel() {
     val user = MutableLiveData<User>()
     val servicio = MutableLiveData<ServicioFuneral?>()
     val distancia = MutableLiveData<Double>()
+    val message = MutableLiveData<MessageDialog>()
 
     val finalizarReco = MutableLiveData<FinalizarRecoResponse?>()
 
     val gpsEnabled = MutableLiveData<Boolean>()
 
     val permissionEnabledLocation = MutableLiveData<Boolean>()
+
+
+
 
     fun onCreate(context: Context) {
         user.postValue(Session.instance.user)
@@ -54,16 +60,14 @@ class MainViewModel : ViewModel() {
     }
 
     fun setDistancia(lat: Double, lon: Double) {
-        if (servicio.value == null) {
-            return
+        if (servicio.value?.reco_lat != null) {
+            val distance = SphericalUtil.computeDistanceBetween(
+                LatLng(lat, lon),
+                servicio.value?.reco_lat?.let { LatLng(it, servicio.value?.reco_lng!!) }
+            );
+
+            this.distancia.postValue(distance/1000)
         }
-
-        val distance = SphericalUtil.computeDistanceBetween(
-            LatLng(lat, lon),
-            LatLng(servicio.value!!.reco_lat!!, servicio.value!!.reco_lng!!)
-        );
-
-        this.distancia.postValue(distance/1000)
     }
 
     fun logout(context: Context, onLogOut: () -> Unit) {
@@ -99,11 +103,17 @@ class MainViewModel : ViewModel() {
         }
         viewModelScope.launch {
             isLoading.postValue(true)
-            val nuevoServicio = repository.getServicio(user.value!!.id)
-            if (nuevoServicio != null) {
-                Session.instance.updateServicio(context, nuevoServicio)
-                servicio.postValue(nuevoServicio)
-            }
+            repository.getServicio(user.value!!.id,{nuevoServicio ->
+                //OnSuccess
+                //if(nuevoServicio != servicio.value){
+                    Session.instance.updateServicio(context, nuevoServicio)
+                    servicio.postValue(nuevoServicio)
+                //}
+            },{sMessageError ->
+                //OnFailure
+                message.postValue(MessageDialog(MessageType.ERROR, sMessageError))
+            })
+
             isLoading.postValue(false)
         }
     }

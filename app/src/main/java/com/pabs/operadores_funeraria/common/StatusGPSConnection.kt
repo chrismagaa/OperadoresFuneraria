@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.common
 
 import com.pabs.operadores_funeraria.R
 
@@ -19,10 +19,10 @@ enum class StatusGPSConnection {
             }
         }
 
-        fun animation(): Int? {
+        fun animation(): Int {
             return when (this) {
-                ENABLED -> null
-                DISABLED -> R.raw.disconnected
+                ENABLED -> R.raw.conectado
+                DISABLED -> R.raw.sinconexion
             }
         }
     }

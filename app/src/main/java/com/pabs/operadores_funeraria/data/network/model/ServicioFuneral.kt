@@ -13,11 +13,11 @@ data class ServicioFuneral (
     val tipo_cliente: String? = "",
     val plan: String? = "", ) {
     companion object{
-        fun toJson(servicio: ServicioFuneral): String{
+        fun toJson(servicio: ServicioFuneral?): String{
             return GsonBuilder().create().toJson(servicio)
         }
 
-        fun fromJson(json: String): ServicioFuneral{
+        fun fromJson(json: String): ServicioFuneral?{
             return GsonBuilder().create().fromJson(json, ServicioFuneral::class.java)
         }
     }

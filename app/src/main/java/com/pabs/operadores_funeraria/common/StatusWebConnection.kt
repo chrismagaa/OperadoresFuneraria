@@ -1,6 +1,5 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.common
 
-import android.graphics.drawable.Drawable
 import com.pabs.operadores_funeraria.R
 
 enum class StatusWebConnection() {
@@ -33,12 +32,12 @@ enum class StatusWebConnection() {
         }
     }
 
-    fun animation(): Int? {
+    fun animation(): Int {
         return when (this) {
-            OPENED -> null
-            CLOSED -> R.raw.disconnected
-            CLOSING -> R.raw.disconnected
-            FAILED -> R.raw.disconnected
+            OPENED -> R.raw.conectado
+            CLOSED -> R.raw.sinconexion
+            CLOSING -> R.raw.sinconexion
+            FAILED -> R.raw.sinconexion
         }
     }
 }

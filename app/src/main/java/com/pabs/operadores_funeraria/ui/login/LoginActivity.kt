@@ -6,16 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.viewbinding.BuildConfig
 import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.databinding.ActivityLoginBinding
 import com.pabs.operadores_funeraria.ui.main.MainActivity
-import com.pabs.operadores_funeraria.utils.MessageFactory
-import com.pabs.operadores_funeraria.utils.MessageType
-import com.pabs.operadores_funeraria.utils.Session
+import com.pabs.operadores_funeraria.common.MessageFactory
+import com.pabs.operadores_funeraria.common.MessageType
+import com.pabs.operadores_funeraria.common.Session
 
 class LoginActivity : AppCompatActivity() {
 
@@ -44,20 +43,21 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        vmLogin.message.observe(this) {
+            it?.let { message ->
+                MessageFactory.getDialog(this, message.type,"Error", message.message,{}).show()
+            }
+        }
+
 
         vmLogin.loginResponse.observe(this) {
             if (BuildConfig.DEBUG) {
                 Log.d(tag, it.toString())
             }
-
             it?.let { response ->
-                if (response.status_code == "200" && response.user != null) {
-                    Session.instance.update(this, response)
-                    if (response.user.role == "OPERATIVO") {
-                        goToHome()
-                    }
-                } else {
-                    Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                Session.instance.update(this, response)
+                if (response.user.role == "OPERATIVO") {
+                    goToHome()
                 }
 
             }

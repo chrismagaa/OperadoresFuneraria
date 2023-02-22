@@ -6,7 +6,6 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
-import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +29,9 @@ import com.pabs.operadores_funeraria.R
 import com.pabs.operadores_funeraria.data.network.model.ServicioFuneral
 import com.pabs.operadores_funeraria.databinding.FragmentServicioBinding
 import com.pabs.operadores_funeraria.ui.main.MainViewModel
-import com.pabs.operadores_funeraria.utils.MessageFactory
-import com.pabs.operadores_funeraria.utils.MessageType
-import com.pabs.operadores_funeraria.utils.isPermissionsGranted
+import com.pabs.operadores_funeraria.common.MessageFactory
+import com.pabs.operadores_funeraria.common.MessageType
+import com.pabs.operadores_funeraria.common.isPermissionsGranted
 
 
 class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListener {
@@ -41,6 +40,22 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         const val REQUEST_CODE_LOCATION = 102
         const val TAG = "ServicioFragment"
     }
+
+
+    private lateinit var tvClienteName: TextView
+    private lateinit var tvPlanData: TextView
+    private lateinit var tvTipoCuenta: TextView
+    private lateinit var tvTelefono: TextView
+    private lateinit var btnRoute: ConstraintLayout
+    private lateinit var tvRoute: TextView
+    private lateinit var ivIconRoute: ImageView
+    private lateinit var tvTitle: TextView
+    private lateinit var tvNoServicio: TextView
+    private lateinit var tvAddress: TextView
+    private lateinit var containerCuenta: ConstraintLayout
+    private lateinit var containerTelefono: ConstraintLayout
+    private lateinit var containerCliente: ConstraintLayout
+
 
     private var dialogLoading: AlertDialog? = null
     private lateinit var bottomSheet: NestedScrollView
@@ -81,8 +96,12 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
         //pintar destino
         vmMain.servicio.observe(viewLifecycleOwner) { servicio ->
+            // Toast.makeText(requireContext(), servicio.toString(), Toast.LENGTH_SHORT).show()
             if (servicio != null) {
                 updateUI(servicio)
+            } else {
+                //No tiene un servicio
+                updateUISinServicio()
             }
         }
 
@@ -90,7 +109,8 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
             if (isLoading != null) {
                 if (isLoading) {
                     dialogLoading =
-                        MessageFactory.getDialogLoading(requireContext(), "Espere porfavor...").show()
+                        MessageFactory.getDialogLoading(requireContext(), "Espere porfavor...")
+                            .show()
                 } else {
                     if (dialogLoading != null && dialogLoading!!.isShowing) {
                         dialogLoading!!.dismiss()
@@ -122,7 +142,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
                         requireContext(),
                         MessageType.SUCCESS,
                         "RECOLECCIÓN FINALIZADA",
-                        finalizar.message,{}
+                        finalizar.message, {}
                     ).show()
                 } else {
                     MessageFactory.getDialog(
@@ -137,6 +157,22 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         }
     }
 
+    private fun updateUISinServicio() {
+        mMap.clear()
+        showUIDataServicio(View.GONE)
+        tvTitle.text = "Sin servicio"
+        tvRoute.text = "Refrescar"
+        tvAddress.text = ""
+    }
+
+    private fun showUIDataServicio(visibility: Int) {
+            containerCliente.visibility = visibility
+            containerTelefono.visibility = visibility
+            containerCuenta.visibility = visibility
+            tvNoServicio.visibility = visibility
+            ivIconRoute.visibility = visibility
+    }
+
 
     private fun setupBottomSheet() {
         bottomSheet = binding.root.findViewById<NestedScrollView>(R.id.bottomSheet)
@@ -146,13 +182,34 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         bsb.isHideable = false
 
 
-        val btnIniciar = bottomSheet.findViewById<TextView>(R.id.ped_route_text)
-        bottomSheet.findViewById<ConstraintLayout>(R.id.btnRuta).setOnClickListener {
-            if (btnIniciar.text == "Iniciar") {
+        containerCliente = bottomSheet.findViewById<ConstraintLayout>(R.id.constraintCliente)
+        containerTelefono = bottomSheet.findViewById<ConstraintLayout>(R.id.constraintTelefono)
+        containerCuenta = bottomSheet.findViewById<ConstraintLayout>(R.id.constraintCuenta)
+        tvAddress = bottomSheet.findViewById<TextView>(R.id.tvAddress)
+        tvNoServicio = bottomSheet.findViewById<TextView>(R.id.tvNoServicio)
+        tvTitle = bottomSheet.findViewById<TextView>(R.id.tvTitle)
+        ivIconRoute = bottomSheet.findViewById<ImageView>(R.id.ped_route_iv)
+        tvRoute = bottomSheet.findViewById<TextView>(R.id.ped_route_text)
+        btnRoute = bottomSheet.findViewById<ConstraintLayout>(R.id.btnRuta)
+        tvTelefono = bottomSheet.findViewById<TextView>(R.id.tvTelefonoCliente)
+        tvTipoCuenta = bottomSheet.findViewById<TextView>(R.id.tvTipoCuentaData)
+        tvPlanData = bottomSheet.findViewById<TextView>(R.id.tvPlanData)
+        tvClienteName = bottomSheet.findViewById<TextView>(R.id.tvClienteName)
+
+
+        btnRoute.setOnClickListener {
+            if (tvRoute.text == "Iniciar") {
                 startNavigation()
-            }else{
+            } else if(tvRoute.text == "Terminar Recolección"){
                 showDialogFinalizarRecoleccion()
+            }else if(tvRoute.text == "Refrescar"){
+                vmMain.refreshServicio(requireContext())
             }
+
+        }
+        tvTelefono.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${servicio?.telefono}"))
+            startActivity(intent)
         }
         /*
 
@@ -164,25 +221,21 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
     }
 
     private fun showDialogFinalizarRecoleccion() {
-        MessageFactory.getDialogFinalizarReco(requireContext()){code ->
+        MessageFactory.getDialogFinalizarReco(requireContext()) { code ->
             vmMain.finalizarRecoleccion(code)
         }.show()
     }
 
     private fun updateUI(servicio: ServicioFuneral) {
-        bottomSheet.findViewById<TextView>(R.id.tvTitle).text = servicio.reco_name
-        bottomSheet.findViewById<TextView>(R.id.tvAddress).text = servicio.reco_address
-        val tvTelefono = bottomSheet.findViewById<TextView>(R.id.tvTelefonoCliente)
+        showUIDataServicio(View.VISIBLE)
+        tvTitle.text = servicio.reco_name
+        tvAddress.text = servicio.reco_address
         tvTelefono.text = servicio.telefono
-        tvTelefono.setOnClickListener {
-            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${servicio.telefono}"))
-            startActivity(intent)
-        }
-        bottomSheet.findViewById<TextView>(R.id.tvTipoCuentaData).text = servicio.tipo_cliente
-        bottomSheet.findViewById<TextView>(R.id.tvNoServicio).text =
-            "No Servicio: ${servicio.id_servicio}"
-        bottomSheet.findViewById<TextView>(R.id.tvPlanData).text = servicio.plan
-        bottomSheet.findViewById<TextView>(R.id.tvClienteName).text = servicio.cliente
+
+        tvTipoCuenta.text = servicio.tipo_cliente
+        tvNoServicio.text = "No Servicio: ${servicio.id_servicio}"
+        tvClienteName.text = servicio.cliente
+        tvPlanData.text = servicio.plan
 
         if (servicio.reco_lat != null && servicio.reco_lng != null) {
             val latLng = LatLng(servicio.reco_lat, servicio.reco_lng)

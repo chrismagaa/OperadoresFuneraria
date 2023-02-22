@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils.location;
+package com.pabs.operadores_funeraria.common.location;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 
 import com.pabs.operadores_funeraria.R;
-import com.pabs.operadores_funeraria.utils.StatusGPSConnection;
+import com.pabs.operadores_funeraria.common.StatusGPSConnection;
 
 public class LocationStateChangeBroadcastReceiver extends BroadcastReceiver
 {

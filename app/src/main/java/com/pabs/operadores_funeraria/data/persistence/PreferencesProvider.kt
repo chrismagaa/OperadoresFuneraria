@@ -11,9 +11,14 @@ enum class PreferencesKey(val value: String){
 
 object PreferencesProvider {
 
-    fun set(context: Context, key: PreferencesKey, value: String){
+    fun set(context: Context, key: PreferencesKey, value: String? = null){
         val editor = prefs(context).edit()
         editor.putString(key.value, value).apply()
+    }
+
+    fun remove(context: Context, key: PreferencesKey){
+        val editor = prefs(context).edit()
+        editor.remove(key.value).apply()
     }
 
     fun string(context: Context, key: PreferencesKey): String?{

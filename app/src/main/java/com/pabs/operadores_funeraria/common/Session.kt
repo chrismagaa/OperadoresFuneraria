@@ -1,4 +1,4 @@
-package com.pabs.operadores_funeraria.utils
+package com.pabs.operadores_funeraria.common
 
 import android.content.Context
 import com.pabs.operadores_funeraria.data.network.model.LoginResponse
@@ -10,6 +10,7 @@ import com.pabs.operadores_funeraria.data.persistence.PreferencesProvider
 class Session {
 
     companion object{
+        const val TAG = "Session"
         val instance = Session()
     }
 
@@ -39,7 +40,7 @@ class Session {
     fun update(context: Context, loginResponse: LoginResponse){
         saveUser(context, loginResponse.user)
         saveAuthToken(context, loginResponse.auth_token!!)
-        saveServicio(context, loginResponse.servicio)
+        updateServicio(context, loginResponse.servicio)
     }
 
     private fun saveServicio(context: Context, servicio: ServicioFuneral) {
@@ -47,8 +48,15 @@ class Session {
         this.servicio = servicio
     }
 
-    fun updateServicio(context: Context, servicio: ServicioFuneral){
-        saveServicio(context, servicio)
+
+
+    fun updateServicio(context: Context, servicio: ServicioFuneral?){
+        if (servicio == null){
+            PreferencesProvider.set(context, PreferencesKey.SERVICIO, null)
+            this.servicio = null
+        }else{
+            saveServicio(context, servicio)
+        }
     }
 
     fun updateUser(context: Context, user: User){

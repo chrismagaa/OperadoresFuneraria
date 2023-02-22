@@ -4,91 +4,156 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/azul"
     tools:context=".ui.login.LoginActivity">
 
-    <!-- Login View -->
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogin"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="100dp"
-        android:text="@string/action_sign_in"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputPassword" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputPassword"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_marginEnd="16dp"
-        app:endIconMode="password_toggle"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputUserName">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_password"
-            android:lines="1"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:inputType="textPassword" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputUserName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:layout_constraintBottom_toTopOf="@+id/inputPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etUserName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_user_name"
-            android:lines="1"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:inputType="textEmailAddress" />
-
-    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/inputUserName"
+        android:src="@drawable/pabs_image_logo"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="spread_inside"
-        tools:srcCompat="@drawable/pabs_logo"
-        android:src="@drawable/pabs_logo"/>
+        app:srcCompat="@drawable/pabs_image_logo" />
+
+
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/nunito_bold"
+        android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Login"
+                android:textColor="@color/azul"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/inputUserName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/nunito_bold"
+                android:text="@string/action_sign_in"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/inputPassword" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:endIconMode="password_toggle"
+                app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/inputUserName">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito_regular"
+                    android:hint="@string/prompt_password"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputUserName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/inputPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView"
+                app:layout_constraintVertical_chainStyle="packed">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito_regular"
+                    android:hint="@string/prompt_user_name"
+                    android:inputType="textEmailAddress"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

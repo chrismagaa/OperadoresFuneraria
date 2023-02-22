@@ -12,20 +12,34 @@ class Repository {
     private val tag = "Repository"
     private val api = ApiClient()
 
-    suspend fun login(username: String, password: String): LoginResponse? {
+    suspend fun login(username: String, password: String,  onSuccess: (LoginResponse?) -> Unit, onFailure: (String)-> Unit){
         if(BuildConfig.DEBUG){
             Log.d(tag, "login()")
         }
-        return api.login(username, password)
+        val response = api.login(username, password)
+        if (response == null) {
+            onFailure("Revisa tu conexión a internet")
+        } else if (response.status_code != "200") {
+            onFailure("Usuario o contraseña incorrectos")
+        } else {
+            onSuccess(response)
+        }
+
     }
 
-    suspend fun getServicio(id: Int): ServicioFuneral? {
+    suspend fun getServicio(id: Int, onSuccess: (ServicioFuneral?) -> Unit, onFailure: (String) -> Unit) {
         if(BuildConfig.DEBUG){
             Log.d(tag, "getServicio()")
         }
 
         val response = api.getServicio(id)
-        return response?.servicio
+        if(response == null){
+            onFailure("Revisa tu conexión a internet")
+        }else if(response.status_code != "200"){
+            onFailure(response.status_code!!)
+        }else{
+            onSuccess(response.servicio)
+        }
     }
 
 

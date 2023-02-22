@@ -1,6 +1,6 @@
 package com.pabs.operadores_funeraria.core
 
-import com.pabs.operadores_funeraria.utils.Constantes
+import com.pabs.operadores_funeraria.common.Constantes
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

@@ -4,5 +4,5 @@ import com.google.gson.GsonBuilder
 
 data class ServicioResponse(
     val status_code: String? = "",
-    val servicio: ServicioFuneral
+    val servicio: ServicioFuneral? = null
     )
