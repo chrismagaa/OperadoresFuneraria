@@ -41,7 +41,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         const val TAG = "ServicioFragment"
     }
 
-
+    lateinit var bsb: BottomSheetBehavior<NestedScrollView>
     private lateinit var tvClienteName: TextView
     private lateinit var tvPlanData: TextView
     private lateinit var tvTipoCuenta: TextView
@@ -62,7 +62,6 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
     private var _binding: FragmentServicioBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
-    lateinit var bsb: BottomSheetBehavior<NestedScrollView>
 
     private val vmMain: MainViewModel by activityViewModels()
 
@@ -108,9 +107,11 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
         vmMain.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading != null) {
                 if (isLoading) {
-                    dialogLoading =
-                        MessageFactory.getDialogLoading(requireContext(), "Espere porfavor...")
-                            .show()
+                    if(dialogLoading == null){
+                        dialogLoading = MessageFactory.getDialogLoading(requireContext(), "Espere porfavor...").show()
+                    }else if(dialogLoading != null && !dialogLoading!!.isShowing) {
+                        dialogLoading!!.show()
+                    }
                 } else {
                     if (dialogLoading != null && dialogLoading!!.isShowing) {
                         dialogLoading!!.dismiss()
@@ -222,7 +223,7 @@ class ServicioFragment : Fragment(), OnMapReadyCallback, OnLocationChangedListen
 
     private fun showDialogFinalizarRecoleccion() {
         MessageFactory.getDialogFinalizarReco(requireContext()) { code ->
-            vmMain.finalizarRecoleccion(code)
+            vmMain.finalizarRecoleccion(requireContext(),code)
         }.show()
     }
 

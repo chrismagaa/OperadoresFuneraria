@@ -3,10 +3,10 @@ package com.pabs.operadores_funeraria.data.network.model
 import com.google.gson.Gson
 
 data class MyLocationService(
-    val placas: String,
+    val carroza_lat: Double,
+    val carroza_lng: Double,
     val operativo: String,
-    val lat: Double,
-    val lng: Double
+    val placas: String,
 ){
     companion object{
         //json to object with gson

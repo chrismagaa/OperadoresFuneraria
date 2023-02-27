@@ -42,8 +42,6 @@ class MainViewModel : ViewModel() {
     val permissionEnabledLocation = MutableLiveData<Boolean>()
 
 
-
-
     fun onCreate(context: Context) {
         user.postValue(Session.instance.user)
         servicio.postValue(Session.instance.servicio)
@@ -119,16 +117,23 @@ class MainViewModel : ViewModel() {
     }
 
 
-    fun finalizarRecoleccion(code: String) {
+    fun finalizarRecoleccion(context: Context, code: String) {
         if (BuildConfig.DEBUG) {
             Log.d(tag, "finalizarRecolección()")
         }
         viewModelScope.launch {
             isLoading.postValue(true)
-            val response = repository.finalizarReco(user.value!!.id,servicio.value!!.id_servicio!!, code)
-            if (response != null) {
-                finalizarReco.postValue(response)
-            }
+            repository.finalizarReco(user.value!!.id,servicio.value!!.id_servicio!!, code,{respuesta ->
+                //OnSuccess
+                finalizarReco.postValue(respuesta)
+                //Refrescamos el servicio
+                refreshServicio(context)
+
+            },{
+                //OnFailure
+                message.postValue(MessageDialog(MessageType.ERROR, it))
+            })
+
             isLoading.postValue(false)
         }
     }

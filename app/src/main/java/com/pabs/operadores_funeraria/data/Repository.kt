@@ -52,11 +52,19 @@ class Repository {
     }
 
 
-    suspend fun finalizarReco(idUser: Int, idServicio: Int, code: String): FinalizarRecoResponse? {
+    suspend fun finalizarReco(idUser: Int, idServicio: Int, code: String,  onSuccess: (FinalizarRecoResponse?) -> Unit, onFailure: (String) -> Unit) {
         if (BuildConfig.DEBUG) {
             Log.d(tag, "finalizarReco()")
         }
 
-        return api.finalizarReco(idUser, idServicio, code)
+        val response = api.finalizarReco(idUser, idServicio, code)
+        if(response == null){
+            onFailure("Revisa tu conexión a internet")
+        }else if(response.status_code != "200"){
+            onFailure(response.status_code)
+        }else{
+            onSuccess(response)
+        }
+
     }
 }

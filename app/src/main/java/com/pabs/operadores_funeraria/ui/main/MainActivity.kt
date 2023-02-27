@@ -69,17 +69,15 @@ class MainActivity : AppCompatActivity() {
 
 
             val message = MyLocationService(
-                vmMain.user.value!!.autoPlaca,
-                vmMain.user.value!!.username,
                 latitude,
-                longitude
+                longitude,
+                vmMain.user.value!!.username,
+                vmMain.user.value!!.autoPlaca
             )
 
             Log.d(TAG, MyLocationService.toJson(message))
             sendLocation(MyLocationService.toJson(message))
         }
-
-
     }
 
     private val internalLocationChangeReceiver = object : BroadcastReceiver() {
@@ -136,8 +134,6 @@ class MainActivity : AppCompatActivity() {
             showDialogSalir()
             true
         }
-
-
 
         observerUser()
 

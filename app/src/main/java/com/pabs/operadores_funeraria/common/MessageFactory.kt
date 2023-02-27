@@ -63,7 +63,7 @@ object MessageFactory {
         return AlertDialog.Builder(ctx)
             .setView(viewFinalizarReco)
             .setTitle("Finalizar recolección")
-            .setMessage("Para finalizar la recoleacción escribe el código proporcionado por el cliente")
+            .setMessage("Solicita al cliente el código de validación")
             .setPositiveButton("ACEPTAR") { dialog, _ ->
                 if (etCode.text.toString().isNotEmpty()) {
                     onClickPositiveButton(etCode.text.toString())

@@ -24,9 +24,6 @@ class LaunchActivity : AppCompatActivity() {
 
         Session.instance.configure(this)
 
-
-
-
         vmLaunch.getVersionApp()
 
 
